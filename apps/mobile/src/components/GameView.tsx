@@ -1,0 +1,46 @@
+import { useImperativeHandle, useRef, type ComponentType, type Ref } from 'react';
+import { WebView, type WebViewMessageEvent, type WebViewProps } from 'react-native-webview';
+import { parseGameMessage, type GameMessage, type HostMessage } from '../lib/bridge';
+
+// نوع WebView الافتراضي يصير never مع TypeScript 7 — نثبّته (نفس حل بالملعب)
+type WebViewInstance = { injectJavaScript: (js: string) => void };
+const Web = WebView as unknown as ComponentType<WebViewProps & { ref?: Ref<WebViewInstance> }>;
+
+export type GameViewHandle = { send: (msg: HostMessage) => void };
+
+/**
+ * الأندرويد: اللعبة تشتغل داخل WebView من نص HTML محلي (بدون نت).
+ * ممنوع أي تنقل لموقع خارجي أو فتح نوافذ.
+ */
+export function GameView({ html, onMessage, ref }: { html: string; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
+  const webRef = useRef<WebViewInstance>(null);
+  useImperativeHandle(ref, () => ({
+    send: (msg) => webRef.current?.injectJavaScript(`window.__spirReceive&&window.__spirReceive(${JSON.stringify(msg)});true;`),
+  }));
+  return (
+    <Web
+      ref={webRef}
+      source={{ html, baseUrl: 'about:blank' }}
+      originWhitelist={['about:*', 'data:*']}
+      onShouldStartLoadWithRequest={(r: { url: string }) => r.url.startsWith('about:') || r.url.startsWith('data:')}
+      onMessage={(e: WebViewMessageEvent) => {
+        const m = parseGameMessage(e.nativeEvent.data);
+        if (m) onMessage(m);
+      }}
+      javaScriptEnabled
+      domStorageEnabled={false}
+      allowFileAccess={false}
+      setSupportMultipleWindows={false}
+      javaScriptCanOpenWindowsAutomatically={false}
+      mediaPlaybackRequiresUserAction={false}
+      scrollEnabled={false}
+      bounces={false}
+      overScrollMode="never"
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      textZoom={100}
+      androidLayerType="hardware"
+      style={{ flex: 1, backgroundColor: '#EEF0FF' }}
+    />
+  );
+}

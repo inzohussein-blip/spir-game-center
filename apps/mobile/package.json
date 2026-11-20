@@ -30,6 +30,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.6",
     "@types/react": "~19.3.0",
+    "esbuild": "^0.28.2",
     "eslint": "^10.14.0",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-expo": "^1.2.1",
@@ -44,10 +45,12 @@
     "start": "expo start",
     "android": "expo run:android",
     "web": "expo start --web",
-    "typecheck": "node node_modules/typescript-7/bin/tsc --noEmit",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/*.test.mts",
-    "build:web": "expo export --platform web && node scripts/pwa.mjs",
-    "lint": "eslint . --max-warnings=0"
+    "typecheck": "node node_modules/typescript-7/bin/tsc --noEmit && node node_modules/typescript-7/bin/tsc -p ../../games/tsconfig.json",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning --test src/lib/*.test.mts ../../games/*/*.test.mts",
+    "build:web": "npm run build:games && expo export --platform web && node scripts/pwa.mjs",
+    "lint": "eslint . --max-warnings=0",
+    "build:games": "node scripts/build-games.mjs",
+    "levels:drop-cat": "node --disable-warning=ExperimentalWarning ../../games/drop-cat/generate.mts"
   },
   "private": true,
   "overrides": {

@@ -1,0 +1,9 @@
+{
+  "id": "trap-cat",
+  "version": 1,
+  "title": "حاصر البزون",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

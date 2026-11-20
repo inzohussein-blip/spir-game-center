@@ -56,6 +56,9 @@ jobs:
       - name: تثبيت المكتبات
         run: npm ci
 
+      - name: بناء الألعاب (games/ → ملفات HTML داخل التطبيق)
+        run: npm run build:games
+
       - name: فحص الأنواع والتنسيق والاختبارات
         run: |
           npm run typecheck

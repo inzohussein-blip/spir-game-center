@@ -1,0 +1,9 @@
+{
+  "id": "drop-cat",
+  "version": 1,
+  "title": "نزّل البزون",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

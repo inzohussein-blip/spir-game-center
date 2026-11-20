@@ -4,15 +4,23 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { GameCard, GameTile } from '../../components/GameCard';
 import { Chip, Halftone, PageHeader, SectionTitle, Text } from '../../components/ui';
-import { greetingFor } from '../../lib/format';
+import { formatNumber, greetingFor } from '../../lib/format';
 import { CATEGORIES, dailyChallenge, filterGames, GAMES, type CategoryId } from '../../lib/games';
+import { useProgress } from '../../lib/progress';
 import { cardRadius, fonts, space, themed } from '../../theme';
 
 /** الرئيسية: تحدّي اليوم، الأقسام، الألعاب الجديدة، وشبكة كل الألعاب */
 export default function Home() {
   const s = useStyles();
   const router = useRouter();
+  const { store } = useProgress();
   const [cat, setCat] = useState<CategoryId | 'all'>('all');
+  // آخر الألعاب اللي انلعبت (للصف «كمّل من وين وقفت»)
+  const recent = useMemo(
+    () => GAMES.filter((g) => (store.games[g.id]?.lastPlayed ?? 0) > 0).sort((a, b) => (store.games[b.id]?.lastPlayed ?? 0) - (store.games[a.id]?.lastPlayed ?? 0)),
+    [store.games],
+  );
+  const fresh = useMemo(() => [...GAMES.filter((g) => g.ready), ...GAMES.filter((g) => !g.ready)].slice(0, 6), []);
   const games = useMemo(() => filterGames(GAMES, cat), [cat]);
   // التاريخ والتحية ينحسبون مرة وحدة عند فتح الشاشة
   const [now] = useState(() => new Date());
@@ -29,9 +37,9 @@ export default function Home() {
         eyebrow={greetingFor(now.getHours())}
         title="الألعاب"
         actions={
-          <View style={s.coin} accessibilityLabel="عملاتك: 0">
+          <View style={s.coin} accessibilityLabel={`عملاتك: ${store.coins}`}>
             <View style={s.coinDot} />
-            <Text style={s.coinText}>0</Text>
+            <Text style={s.coinText}>{formatNumber(store.coins)}</Text>
           </View>
         }
       />
@@ -59,9 +67,9 @@ export default function Home() {
 
         {cat === 'all' ? (
           <>
-            <SectionTitle title="جديد بالمنصة" />
+            <SectionTitle title={recent.length ? 'كمّل من وين وقفت' : 'جاهزة للعب'} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tiles}>
-              {GAMES.slice(0, 6).map((g) => (
+              {(recent.length ? recent : fresh).map((g) => (
                 <GameTile key={g.id} game={g} />
               ))}
             </ScrollView>

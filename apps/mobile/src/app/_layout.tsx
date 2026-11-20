@@ -8,6 +8,7 @@ import { BrandSplash } from '../components/BrandSplash';
 import { ToastProvider } from '../components/feedback';
 import { StackHeader } from '../components/StackHeader';
 import { Text } from '../components/ui';
+import { ProgressProvider } from '../lib/progress';
 import { fonts, headerText, ThemeProvider, useTheme } from '../theme';
 
 // العربية: اتجاه من اليمين لليسار
@@ -55,6 +56,7 @@ function AppStack() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="game/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="play/[id]" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
       </Stack>
     </>
   );
@@ -76,9 +78,11 @@ export default function RootLayout() {
     <ThemeProvider>
       <View style={{ flex: 1 }}>
         {loaded ? (
-          <ToastProvider>
-            <AppStack />
-          </ToastProvider>
+          <ProgressProvider>
+            <ToastProvider>
+              <AppStack />
+            </ToastProvider>
+          </ProgressProvider>
         ) : null}
         {!splashGone ? (
           <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 100 }}>
