@@ -1,0 +1,346 @@
+<title>سبير للألعاب</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=Reem+Kufi:wght@700&display=swap">
+<style>
+/* التخطيط: لوحة عرض فيها شاشات التطبيق بإطارات هواتف، بهوية «ملكي» نفسها من مشروع بالملعب */
+:root {
+  --royal: #1A23C9; --navy: #0B1033; --yellow: #FFD60A;
+  --bg: #EEF0FF; --card: #FFFFFF; --card-alt: #E6E9FB; --soft: #E3E6FF;
+  --text: #0B1033; --muted: #4A5185; --border: #C9CEF5;
+  --green: #167A43; --green-soft: #E5F6EC; --red: #D92D20; --orange: #E8590C; --pink: #E0398B; --teal: #0F9B8E; --violet: #6B3FD6;
+  --display: 'Reem Kufi', 'Readex Pro', Tahoma, sans-serif;
+  --body: 'Readex Pro', Tahoma, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); margin: 0; direction: rtl; }
+.wrap { max-width: 1400px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+.intro h1 { font-family: var(--display); font-size: 40px; line-height: 1.3; margin: 0; color: var(--royal); }
+.intro p { margin: 6px 0 0; color: var(--muted); max-width: 65ch; line-height: 1.8; }
+h2.sec { font-family: var(--display); font-size: 24px; margin: 0 0 16px; color: var(--navy); }
+.phones { display: flex; flex-wrap: wrap; gap: 32px 28px; justify-content: center; }
+figure { margin: 0; display: grid; gap: 12px; justify-items: center; }
+figcaption { font-weight: 600; font-size: 14px; color: var(--muted); text-align: center; max-width: 300px; line-height: 1.6; }
+figcaption b { color: var(--navy); display: block; font-size: 15px; }
+
+/* ---------- إطار الهاتف ---------- */
+.phone { width: 300px; max-width: 100%; height: 640px; border-radius: 38px; background: var(--navy); padding: 9px; box-shadow: 0 20px 40px rgba(11,16,51,.22); position: relative; }
+.screen { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; background: var(--bg); position: relative; display: flex; flex-direction: column; }
+.status { height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 11px; font-weight: 600; color: #fff; direction: ltr; flex: none; }
+.body { flex: 1; overflow: hidden; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- رأس «ملكي»: أزرق، نقاط القمصان، شريطين أصفر مايلين ---------- */
+.band { background: var(--royal); color: #fff; position: relative; overflow: hidden; padding: 0 16px 18px; flex: none; }
+.band::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.16) 1.5px, transparent 1.6px); background-size: 14px 14px; width: 55%; }
+.band .s1, .band .s2 { position: absolute; top: -20px; bottom: -20px; background: var(--yellow); transform: skewX(-14deg); }
+.band .s1 { left: -36px; width: 70px; }
+.band .s2 { left: 48px; width: 11px; }
+.band > *:not(.s1):not(.s2) { position: relative; }
+.band .eyebrow { font-size: 12px; opacity: .85; }
+.band .title { font-family: var(--display); font-size: 27px; line-height: 1.35; letter-spacing: .5px; }
+.band .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.coin { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 4px 10px 4px 6px; font-weight: 700; font-size: 12px; }
+.coin i { width: 16px; height: 16px; border-radius: 50%; background: var(--yellow); box-shadow: inset 0 -2px 0 #E0A800; display: block; }
+.ibtn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+.ibtn svg { width: 18px; height: 18px; }
+
+/* ---------- عناصر مشتركة ---------- */
+.card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 12px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; border-radius: 10px; font-weight: 700; font-size: 14px; background: var(--yellow); color: var(--navy); box-shadow: 0 3px 0 var(--navy); border: 0; font-family: var(--body); }
+.btn.outline { background: var(--card); box-shadow: none; border: 2px solid var(--royal); color: var(--royal); }
+.chips { display: flex; gap: 6px; overflow: hidden; flex: none; }
+.chip { white-space: nowrap; padding: 6px 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--card); font-size: 12px; font-weight: 600; }
+.chip.on { background: var(--yellow); border-color: var(--navy); box-shadow: 0 3px 0 var(--navy); }
+.label { font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+.label small { font-weight: 600; font-size: 11px; color: var(--royal); }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: var(--soft); color: var(--royal); }
+.badge.y { background: #FFF6C2; color: #6B5300; }
+.badge.g { background: var(--green-soft); color: var(--green); }
+
+/* ---------- بطاقة لعبة ---------- */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.game { background: var(--card); border: 2px solid var(--border); border-radius: 16px; overflow: hidden; }
+.art { aspect-ratio: 4 / 3; display: grid; place-items: center; justify-items: stretch; position: relative; overflow: hidden; }
+.art::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.18) 1.4px, transparent 1.5px); background-size: 12px 12px; }
+.art svg { width: 58%; height: 70%; position: relative; z-index: 1; justify-self: center; }
+.game .meta { padding: 7px 9px 9px; display: grid; gap: 3px; }
+.game .name { font-weight: 700; font-size: 13px; }
+.game .sub { display: flex; gap: 4px; align-items: center; font-size: 10px; color: var(--muted); }
+.age { position: absolute; top: 6px; right: 6px; z-index: 2; background: var(--yellow); color: var(--navy); font-weight: 700; font-size: 10px; border-radius: 6px; padding: 1px 6px; box-shadow: 0 2px 0 var(--navy); }
+.c-royal { background: var(--royal); } .c-orange { background: var(--orange); } .c-green { background: #1C8B4A; } .c-pink { background: var(--pink); } .c-teal { background: var(--teal); } .c-violet { background: var(--violet); } .c-navy { background: var(--navy); }
+
+/* ---------- الشريط السفلي ---------- */
+.tabs { flex: none; background: var(--royal); display: grid; grid-template-columns: repeat(4, 1fr); padding: 7px 0 12px; }
+.tab { display: grid; justify-items: center; gap: 2px; font-size: 10px; font-weight: 600; color: #C9CEF5; }
+.tab svg { width: 22px; height: 22px; }
+.tab.on { color: var(--yellow); font-weight: 700; }
+
+/* ---------- تحدّي اليوم ---------- */
+.hero { background: var(--navy); color: #fff; border-radius: 16px; padding: 12px; position: relative; overflow: hidden; display: flex; gap: 10px; align-items: center; flex: none; }
+.hero::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.12) 1.5px, transparent 1.6px); background-size: 14px 14px; }
+.hero > * { position: relative; }
+.hero .k { font-size: 11px; color: var(--yellow); font-weight: 700; }
+.hero .t { font-family: var(--display); font-size: 18px; line-height: 1.4; }
+.hero .d { font-size: 11px; opacity: .8; }
+.hero .btn { min-height: 34px; padding: 0 14px; font-size: 13px; box-shadow: 0 3px 0 #000; }
+.ring { width: 54px; height: 54px; flex: none; border-radius: 14px; background: var(--royal); display: grid; place-items: center; }
+
+/* ---------- الصف الأفقي (كمّل اللعب) ---------- */
+.hscroll { display: flex; gap: 8px; overflow: hidden; flex: none; }
+.mini { flex: none; width: 70px; display: grid; gap: 4px; justify-items: center; font-size: 10px; font-weight: 600; }
+.mini .art { width: 62px; height: 62px; aspect-ratio: auto; border-radius: 16px; }
+.mini .art svg { width: 64%; }
+.bar { height: 4px; width: 52px; border-radius: 4px; background: var(--card-alt); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--royal); }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>سبير للألعاب</h1>
+    <p>تصوّر أولي لشاشات منصة الألعاب. الهوية مأخوذة من «بالملعب»: الأزرق الملكي للرأس والشريط، الأصفر للفعل الأساسي ويّا ظل كحلي حاد، نقاط القمصان والشريطين المايلين، وخط كوفي للعناوين. كل لعبة عندها لون غلاف خاص بيها حتى تبين الشبكة ملوّنة ومفرحة للصغار.</p>
+  </header>
+
+  <section>
+    <h2 class="sec">الشاشات الرئيسية</h2>
+    <div class="phones">
+
+      <!-- 1. من يلعب؟ -->
+      <figure id="s-profiles">
+        <div class="phone"><div class="screen">
+          <div class="band" style="padding-bottom:22px">
+            <span class="s1"></span><span class="s2"></span>
+            <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="eyebrow" style="margin-top:28px">أهلاً بيكم بـ سبير</div>
+            <div class="title">منو راح يلعب؟</div>
+          </div>
+          <div class="body" style="gap:14px;padding-top:18px">
+            <div class="grid2" style="gap:12px">
+              <div class="card" style="display:grid;justify-items:center;gap:6px;border-color:var(--navy);box-shadow:0 3px 0 var(--navy)">
+                <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#1A23C9"/><circle cx="32" cy="26" r="11" fill="#FFD60A"/><path d="M12 54c4-11 12-15 20-15s16 4 20 15" fill="#FFD60A"/></svg>
+                <b style="font-size:14px">أحمد</b><span class="badge">12 سنة</span>
+              </div>
+              <div class="card" style="display:grid;justify-items:center;gap:6px">
+                <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#E0398B"/><circle cx="32" cy="26" r="11" fill="#fff"/><path d="M12 54c4-11 12-15 20-15s16 4 20 15" fill="#fff"/></svg>
+                <b style="font-size:14px">زينب</b><span class="badge y">6 سنوات</span>
+              </div>
+              <div class="card" style="display:grid;justify-items:center;gap:6px">
+                <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#0F9B8E"/><circle cx="32" cy="26" r="11" fill="#fff"/><path d="M12 54c4-11 12-15 20-15s16 4 20 15" fill="#fff"/></svg>
+                <b style="font-size:14px">بابا</b><span class="badge g">الكل</span>
+              </div>
+              <div class="card" style="display:grid;place-items:center;gap:6px;border-style:dashed">
+                <div style="width:64px;height:64px;border-radius:50%;background:var(--soft);display:grid;place-items:center"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="#1A23C9" stroke-width="3" stroke-linecap="round"/></svg></div>
+                <b style="font-size:13px;color:var(--royal)">لاعب جديد</b>
+              </div>
+            </div>
+            <div class="card" style="display:flex;gap:10px;align-items:center;background:var(--card-alt);border-color:transparent">
+              <svg width="28" height="28" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#0B1033"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#0B1033" stroke-width="2.2" fill="none"/></svg>
+              <div style="flex:1"><b style="font-size:13px">وضع الأهل</b><div style="font-size:11px;color:var(--muted)">وقت اللعب، الأعمار، الإعدادات (رمز PIN)</div></div>
+            </div>
+          </div>
+        </div></div>
+        <figcaption><b>١. منو يلعب؟</b>ملفات متعددة للعائلة بدون تسجيل دخول. كل ملف يحفظ نتائجه ويشوف ألعاب تناسب عمره.</figcaption>
+      </figure>
+
+      <!-- 2. الرئيسية -->
+      <figure id="s-home">
+        <div class="phone"><div class="screen">
+          <div class="band">
+            <span class="s1"></span><span class="s2"></span>
+            <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="row" style="margin-top:8px">
+              <div><div class="eyebrow">هلا أحمد</div><div class="title">الألعاب</div></div>
+              <div style="display:flex;gap:6px;align-items:center;padding-bottom:6px">
+                <span class="coin"><i></i>1,250</span>
+                <span class="ibtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" stroke="#fff" stroke-width="2.4" fill="none"/><path d="M16 16l4 4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div class="hero">
+              <div class="ring"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD60A"/></svg></div>
+              <div style="flex:1;min-width:0"><div class="k">تحدّي اليوم</div><div class="t">لغز الأرقام 4×4</div><div class="d">+50 عملة · باقي 6 ساعات</div></div>
+              <span class="btn">العب</span>
+            </div>
+            <div class="chips"><span class="chip on">الكل</span><span class="chip">ألغاز</span><span class="chip">ذكاء</span><span class="chip">للصغار</span><span class="chip">أركيد</span></div>
+            <div class="label">كمّل من وين وقفت</div>
+            <div class="hscroll">
+              <div class="mini"><div class="art c-orange"><svg viewBox="0 0 40 40"><rect x="3" y="3" width="15" height="15" rx="3" fill="#fff"/><rect x="22" y="3" width="15" height="15" rx="3" fill="#FFD60A"/><rect x="3" y="22" width="15" height="15" rx="3" fill="#FFD60A"/><rect x="22" y="22" width="15" height="15" rx="3" fill="#fff"/></svg></div>الذاكرة<span class="bar"><i style="width:70%"></i></span></div>
+              <div class="mini"><div class="art c-green"><svg viewBox="0 0 40 40"><path d="M6 30h10V20h10V10h8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34" cy="10" r="4" fill="#FFD60A"/></svg></div>الأفعى<span class="bar"><i style="width:40%"></i></span></div>
+              <div class="mini"><div class="art c-violet"><svg viewBox="0 0 40 40"><text x="20" y="29" text-anchor="middle" font-family="Readex Pro" font-weight="700" font-size="22" fill="#fff">أ ب</text></svg></div>الحروف<span class="bar"><i style="width:85%"></i></span></div>
+              <div class="mini"><div class="art c-teal"><svg viewBox="0 0 40 40"><path d="M8 20h24M20 8v24" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg></div>حساب سريع<span class="bar"><i style="width:20%"></i></span></div>
+            </div>
+            <div class="label">كل الألعاب <small>24 لعبة</small></div>
+            <div class="grid2">
+              <div class="game"><div class="art c-royal"><span class="age">+4</span><svg viewBox="0 0 40 40"><path d="M14 4v32M26 4v32M4 14h32M4 26h32" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M6 6l6 6M12 6l-6 6" stroke="#FFD60A" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="20" r="3.5" stroke="#FFD60A" stroke-width="3" fill="none"/></svg></div><div class="meta"><span class="name">إكس أو</span><span class="sub">لاعبين · بدون نت</span></div></div>
+              <div class="game"><div class="art c-pink"><span class="age">+3</span><svg viewBox="0 0 40 40"><circle cx="13" cy="13" r="8" fill="#FFD60A"/><circle cx="27" cy="13" r="8" fill="#fff"/><circle cx="13" cy="27" r="8" fill="#fff"/><circle cx="27" cy="27" r="8" fill="#0B1033"/></svg></div><div class="meta"><span class="name">تتبّع الألوان</span><span class="sub">ذاكرة · بدون نت</span></div></div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab on"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>الرئيسية</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>الأقسام</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>الإنجازات</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 21c1.5-4.5 4.5-6.5 8-6.5s6.5 2 8 6.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>حسابي</div>
+          </div>
+        </div></div>
+        <figcaption><b>٢. الرئيسية</b>تحدّي يومي، أقسام، «كمّل من وين وقفت»، وشبكة ألعاب ملوّنة عليها عمر اللعبة.</figcaption>
+      </figure>
+
+      <!-- 3. تفاصيل اللعبة -->
+      <figure id="s-detail">
+        <div class="phone"><div class="screen">
+          <div class="art c-orange" style="aspect-ratio:auto;height:230px;flex:none;display:block;padding:0">
+            <div class="status" style="position:relative;z-index:2;width:100%"><span>9:41</span><span>●●● ▮</span></div>
+            <div style="position:absolute;top:34px;right:14px;z-index:2" class="ibtn"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div style="position:absolute;top:34px;left:14px;z-index:2" class="ibtn"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="#FFD60A"/></svg></div>
+            <svg viewBox="0 0 120 90" style="position:absolute;inset:auto 0 18px 0;margin:auto;width:62%;height:64%;z-index:1">
+              <g transform="rotate(-8 30 45)"><rect x="8" y="18" width="40" height="54" rx="7" fill="#fff"/><circle cx="28" cy="45" r="10" fill="#1A23C9"/></g>
+              <rect x="40" y="12" width="40" height="54" rx="7" fill="#FFD60A" stroke="#0B1033" stroke-width="3"/><path d="M60 28l4 8 9 1-6 6 2 9-9-5-9 5 2-9-6-6 9-1z" fill="#0B1033"/>
+              <g transform="rotate(8 92 45)"><rect x="72" y="18" width="40" height="54" rx="7" fill="#0B1033"/><path d="M84 36h16M84 46h16M84 56h10" stroke="#FFD60A" stroke-width="4" stroke-linecap="round"/></g>
+            </svg>
+          </div>
+          <div class="body" style="gap:12px;margin-top:-18px;background:var(--bg);border-radius:20px 20px 0 0;position:relative;z-index:3;padding-top:16px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+              <div><div style="font-family:var(--display);font-size:24px;line-height:1.3">ذاكرة البطاقات</div><div style="display:flex;gap:4px;margin-top:4px"><span class="badge y">من 3 سنين</span><span class="badge">ذكاء</span><span class="badge g">بدون نت</span></div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+              <div class="card" style="padding:8px"><div style="font-family:var(--display);font-size:20px;color:var(--royal)">42</div><div style="font-size:10px;color:var(--muted)">أفضل نتيجة</div></div>
+              <div class="card" style="padding:8px"><div style="font-family:var(--display);font-size:20px;color:var(--royal)">7/12</div><div style="font-size:10px;color:var(--muted)">المراحل</div></div>
+              <div class="card" style="padding:8px"><div style="font-family:var(--display);font-size:20px;color:#E0A800">★ 18</div><div style="font-size:10px;color:var(--muted)">النجوم</div></div>
+            </div>
+            <div class="card" style="font-size:12px;line-height:1.8;color:var(--muted)"><b style="color:var(--text);font-size:13px">شلون تلعب؟</b><br>اقلب بطاقتين، إذا تطابقن يبقن مفتوحات. حاول تخلص بأقل عدد حركات.</div>
+            <div class="label">المستوى</div>
+            <div class="chips"><span class="chip">سهل</span><span class="chip on">متوسط</span><span class="chip">صعب</span></div>
+            <div style="flex:1"></div>
+            <span class="btn" style="min-height:50px;font-size:16px"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="#0B1033"/></svg>العب هسه</span>
+          </div>
+        </div></div>
+        <figcaption><b>٣. صفحة اللعبة</b>الغلاف بلون اللعبة، أرقام اللاعب، شرح قصير، اختيار المستوى، وزر اللعب ثابت تحت.</figcaption>
+      </figure>
+
+      <!-- 4. داخل اللعبة + نهاية -->
+      <figure id="s-play">
+        <div class="phone"><div class="screen" style="background:#FFF4EC">
+          <div class="status" style="background:var(--orange)"><span>9:41</span><span>●●● ▮</span></div>
+          <div style="background:var(--orange);display:flex;align-items:center;gap:6px;padding:4px 12px 10px;flex:none">
+            <span class="ibtn"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="#fff"/><rect x="14" y="5" width="4" height="14" rx="1" fill="#fff"/></svg></span>
+            <div style="flex:1;text-align:center;color:#fff;font-weight:700;font-size:13px">المرحلة 8</div>
+            <span class="coin" style="color:#fff"><i></i>36 حركة</span>
+          </div>
+          <div style="flex:1;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start;filter:blur(1.5px);opacity:.6">
+            <div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:#fff;border:2px solid var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div>
+            <div style="aspect-ratio:3/4;border-radius:10px;background:#fff;border:2px solid var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:#fff;border:2px solid var(--orange)"></div>
+            <div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:#fff;border:2px solid var(--orange)"></div><div style="aspect-ratio:3/4;border-radius:10px;background:var(--orange)"></div>
+          </div>
+          <div style="position:absolute;inset:0;background:rgba(11,16,51,.45)"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:24px 24px 0 0;padding:0 16px 18px;display:grid;gap:12px;text-align:center;overflow:hidden">
+            <div class="band" style="margin:0 -16px;padding:18px 16px 16px;border-radius:24px 24px 0 0">
+              <span class="s1"></span><span class="s2"></span>
+              <div class="title" style="font-size:30px">عاشت إيدك!</div>
+              <div class="eyebrow">خلصت المرحلة 8 بـ 36 حركة</div>
+            </div>
+            <div style="display:flex;justify-content:center;gap:6px">
+              <svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD60A" stroke="#0B1033" stroke-width="1.2"/></svg>
+              <svg width="54" height="54" viewBox="0 0 24 24" style="margin-top:-8px"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#FFD60A" stroke="#0B1033" stroke-width="1.2"/></svg>
+              <svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#E6E9FB" stroke="#C9CEF5" stroke-width="1.2"/></svg>
+            </div>
+            <div style="display:flex;justify-content:center;gap:8px"><span class="badge y" style="font-size:12px;padding:4px 10px">رقم قياسي جديد</span><span class="badge" style="font-size:12px;padding:4px 10px">+20 عملة</span></div>
+            <span class="btn">المرحلة الجاية</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><span class="btn outline">أعد</span><span class="btn outline">القائمة</span></div>
+          </div>
+        </div></div>
+        <figcaption><b>٤. نهاية الجولة</b>شريط علوي موحّد فوق كل لعبة (إيقاف، المرحلة، النتيجة)، ونافذة نهاية موحّدة تستلم النتيجة من اللعبة.</figcaption>
+      </figure>
+
+      <!-- 5. الإنجازات -->
+      <figure id="s-awards">
+        <div class="phone"><div class="screen">
+          <div class="band">
+            <span class="s1"></span><span class="s2"></span>
+            <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="eyebrow" style="margin-top:8px">المستوى 7 · 1,250 عملة</div>
+            <div class="title">الإنجازات</div>
+            <div style="height:8px;border-radius:6px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:6px"><div style="width:64%;height:100%;background:var(--yellow)"></div></div>
+          </div>
+          <div class="body">
+            <div style="display:flex;background:var(--card-alt);border-radius:10px;padding:3px;gap:3px;flex:none">
+              <span class="chip on" style="flex:1;text-align:center;box-shadow:none">الأوسمة</span><span style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--muted);padding:6px">ترتيب العائلة</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:var(--yellow);box-shadow:0 3px 0 var(--navy);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#0B1033" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div><b style="font-size:11px">أول فوز</b></div>
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:var(--orange);box-shadow:0 3px 0 var(--navy);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3c2 4 6 5 6 10a6 6 0 0 1-12 0c0-3 2-4 2-7 2 1 3 3 3 3s1-3 1-6z" fill="#fff"/></svg></div><b style="font-size:11px">7 أيام ورا بعض</b></div>
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:var(--royal);box-shadow:0 3px 0 var(--navy);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3l2.5 5.5 6 .6-4.5 4 1.3 6L12 16l-5.3 3.1 1.3-6-4.5-4 6-.6z" fill="#FFD60A"/></svg></div><b style="font-size:11px">50 نجمة</b></div>
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center;opacity:.55"><div style="width:44px;height:44px;border-radius:50%;background:var(--card-alt);display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#4A5185"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#4A5185" stroke-width="2.2" fill="none"/></svg></div><b style="font-size:11px">ملك الألغاز</b></div>
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center;opacity:.55"><div style="width:44px;height:44px;border-radius:50%;background:var(--card-alt);display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#4A5185"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#4A5185" stroke-width="2.2" fill="none"/></svg></div><b style="font-size:11px">جرّب 10 ألعاب</b></div>
+              <div class="card" style="padding:8px;display:grid;justify-items:center;gap:4px;text-align:center;opacity:.55"><div style="width:44px;height:44px;border-radius:50%;background:var(--card-alt);display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#4A5185"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#4A5185" stroke-width="2.2" fill="none"/></svg></div><b style="font-size:11px">بطل الحروف</b></div>
+            </div>
+            <div class="label">ترتيب العائلة هالأسبوع</div>
+            <div class="card" style="padding:0;overflow:hidden">
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#FFF6C2"><b style="font-family:var(--display);width:18px;color:#6B5300">1</b><span style="width:26px;height:26px;border-radius:50%;background:var(--pink)"></span><b style="flex:1;font-size:13px">زينب</b><b style="font-size:13px">2,140</b></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:2px solid var(--border)"><b style="font-family:var(--display);width:18px;color:var(--royal)">2</b><span style="width:26px;height:26px;border-radius:50%;background:var(--royal)"></span><b style="flex:1;font-size:13px">أحمد (إنت)</b><b style="font-size:13px">1,250</b></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:2px solid var(--border)"><b style="font-family:var(--display);width:18px;color:var(--muted)">3</b><span style="width:26px;height:26px;border-radius:50%;background:var(--teal)"></span><b style="flex:1;font-size:13px">بابا</b><b style="font-size:13px">980</b></div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" stroke="currentColor" stroke-width="2" fill="none"/></svg>الرئيسية</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>الأقسام</div>
+            <div class="tab on"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM12 14v4M8 20h8" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="2" fill="none"/></svg>الإنجازات</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 21c1.5-4.5 4.5-6.5 8-6.5s6.5 2 8 6.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>حسابي</div>
+          </div>
+        </div></div>
+        <figcaption><b>٥. الإنجازات</b>مستوى وعملات وأوسمة تنفتح، وترتيب داخل العائلة (بدون ترتيب عام للصغار).</figcaption>
+      </figure>
+
+      <!-- 6. وضع الأهل (داكن) -->
+      <figure id="s-parents">
+        <div class="phone"><div class="screen" style="background:#070A24;color:#EEF0FF">
+          <div class="band">
+            <span class="s1"></span><span class="s2"></span>
+            <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="eyebrow" style="margin-top:8px">محمي برمز PIN</div>
+            <div class="title">وضع الأهل</div>
+          </div>
+          <div class="body">
+            <div style="background:#10153D;border:2px solid #252C6B;border-radius:16px;padding:12px;display:grid;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><b>وقت لعب زينب اليوم</b><b style="color:var(--yellow)">35 / 45 د</b></div>
+              <div style="height:8px;border-radius:6px;background:#171D4F;overflow:hidden"><div style="width:78%;height:100%;background:var(--yellow)"></div></div>
+              <div style="font-size:11px;color:#A3A9D9">لما يخلص الوقت تطلع رسالة «كافي لليوم» وتنقفل الألعاب.</div>
+            </div>
+            <div style="background:#10153D;border:2px solid #252C6B;border-radius:16px;overflow:hidden">
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 12px"><b style="flex:1;font-size:13px">حد يومي للعب</b><span style="font-size:12px;color:#A3A9D9">45 دقيقة</span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:2px solid #252C6B"><b style="flex:1;font-size:13px">ألعاب تناسب عمر</b><span style="font-size:12px;color:#A3A9D9">6 سنين</span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:2px solid #252C6B"><b style="flex:1;font-size:13px">الأصوات</b><span style="width:38px;height:22px;border-radius:12px;background:var(--yellow);position:relative"><i style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#0B1033"></i></span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:2px solid #252C6B"><b style="flex:1;font-size:13px">الوضع الداكن</b><span style="width:38px;height:22px;border-radius:12px;background:var(--yellow);position:relative"><i style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#0B1033"></i></span></div>
+            </div>
+            <div style="font-weight:700;font-size:14px">لون التطبيق</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;font-size:10px;font-weight:600;color:#A3A9D9">
+              <div style="display:grid;gap:4px;justify-items:center"><span style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#1A23C9 55%,#FFD60A 55%);outline:3px solid var(--yellow);outline-offset:2px"></span><span style="color:#fff">ملكي</span></div>
+              <div style="display:grid;gap:4px;justify-items:center"><span style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#121D33 55%,#FFCC03 55%)"></span>ليلي</div>
+              <div style="display:grid;gap:4px;justify-items:center"><span style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#E0398B 55%,#FFD60A 55%)"></span>حلاوة</div>
+              <div style="display:grid;gap:4px;justify-items:center"><span style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#1C8B4A 55%,#FFD60A 55%)"></span>غابة</div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" stroke="currentColor" stroke-width="2" fill="none"/></svg>الرئيسية</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>الأقسام</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>الإنجازات</div>
+            <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c1.5-4.5 4.5-6.5 8-6.5s6.5 2 8 6.5z" fill="currentColor"/></svg>حسابي</div>
+          </div>
+        </div></div>
+        <figcaption><b>٦. وضع الأهل (داكن)</b>حد يومي للعب، فلترة حسب العمر، الأصوات، واختيار لون التطبيق مثل ثيمات بالملعب.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="s-tokens">
+    <h2 class="sec">الثيم «ملكي» — الألوان والخطوط</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">
+      <div class="card" style="display:grid;gap:6px"><span style="height:56px;border-radius:10px;background:var(--royal)"></span><b style="font-size:13px">الأزرق الملكي</b><code style="font-size:12px;color:var(--muted)">#1A23C9 · الرأس والشريط</code></div>
+      <div class="card" style="display:grid;gap:6px"><span style="height:56px;border-radius:10px;background:var(--yellow);box-shadow:0 3px 0 var(--navy)"></span><b style="font-size:13px">الأصفر</b><code style="font-size:12px;color:var(--muted)">#FFD60A · زر اللعب</code></div>
+      <div class="card" style="display:grid;gap:6px"><span style="height:56px;border-radius:10px;background:var(--navy)"></span><b style="font-size:13px">الكحلي</b><code style="font-size:12px;color:var(--muted)">#0B1033 · الكتابة والظل</code></div>
+      <div class="card" style="display:grid;gap:6px"><span style="height:56px;border-radius:10px;background:var(--bg);border:2px solid var(--border)"></span><b style="font-size:13px">الخلفية</b><code style="font-size:12px;color:var(--muted)">#EEF0FF · فاتح</code></div>
+      <div class="card" style="display:grid;gap:6px"><span style="height:56px;border-radius:10px;display:grid;grid-template-columns:repeat(5,1fr);overflow:hidden"><i style="background:var(--orange)"></i><i style="background:var(--pink)"></i><i style="background:#1C8B4A"></i><i style="background:var(--teal)"></i><i style="background:var(--violet)"></i></span><b style="font-size:13px">ألوان أغلفة الألعاب</b><code style="font-size:12px;color:var(--muted)">لون لكل لعبة</code></div>
+      <div class="card" style="display:grid;gap:4px"><span style="font-family:var(--display);font-size:30px;line-height:1.3;color:var(--royal)">عاشت إيدك</span><b style="font-size:13px">Reem Kufi — العناوين</b><span style="font-size:12px;color:var(--muted)">Readex Pro — النصوص</span></div>
+    </div>
+  </section>
+</div>
