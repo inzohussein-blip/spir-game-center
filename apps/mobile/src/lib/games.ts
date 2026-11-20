@@ -16,7 +16,8 @@ export type GameIcon =
   | 'airplane'
   | 'grid'
   | 'text-search'
-  | 'dice-multiple';
+  | 'dice-multiple'
+  | 'paw';
 
 export type Game = {
   id: string;
@@ -70,6 +71,7 @@ export const GAMES: Game[] = [
   { id: 'sudoku', title: 'سودوكو', tagline: '4×4 للصغار و9×9 للكبار', howTo: 'عبّي الشبكة بحيث كل رقم يطلع مرة وحدة بكل صف وعمود ومربع.', category: 'puzzle', minAge: 12, color: C.royal, icon: 'grid', players: [1], levels: 3, ready: false },
   { id: 'word-search', title: 'البحث عن الكلمات', tagline: 'لگّي الكلمات المخفية', howTo: 'اسحب على الحروف حتى تحدد الكلمة. مواضيع: حيوانات، فواكه، مدن.', category: 'words', minAge: 8, color: C.violet, icon: 'text-search', players: [1], levels: 15, ready: false },
   { id: 'dominoes', title: 'دومينو', tagline: 'اللعبة الشعبية ضد الجهاز', howTo: 'نزّل قطعة تطابق أحد الطرفين. أول واحد يخلص قطعه يفوز بالجولة.', category: 'family', minAge: 10, color: C.green, icon: 'dice-multiple', players: [1], levels: 3, ready: false },
+  { id: 'drop-cat', title: 'نزّل البزون', tagline: 'كل بزون لفتحة لونه', howTo: 'اسحب القطع حتى تفتح الطريق، وكل بزون يطيح بالفتحة اللي بنفس لونه. بالصعب أكو مؤقت.', category: 'puzzle', minAge: 5, color: C.teal, icon: 'paw', players: [1], levels: 60, ready: false },
 ];
 
 export const gameById = (id: string) => GAMES.find((g) => g.id === id);
