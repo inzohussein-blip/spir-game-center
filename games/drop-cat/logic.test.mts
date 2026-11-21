@@ -45,9 +45,9 @@ test('المحلّل يلگى أقصر حل', () => {
   assert.equal(autoDropDir(tiny, initialState(tiny), 0), null);
 });
 
-test('60 مرحلة: 20 لكل صعوبة، صحيحة وتنحل بالـ par المكتوب', () => {
+test('120 مرحلة: 40 لكل صعوبة، صحيحة وتنحل بالـ par المكتوب', () => {
   for (const name of ['easy', 'medium', 'hard']) {
-    assert.equal(LEVELS[name].length, 20, name);
+    assert.equal(LEVELS[name].length, 40, name);
     for (const [i, l] of LEVELS[name].entries()) {
       assert.equal(validate(l), null, `${name} ${i + 1}`);
       assert.equal(solve(l, initialState(l), 300_000)?.length, l.par, `${name} ${i + 1}`);

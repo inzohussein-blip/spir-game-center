@@ -1,13 +1,14 @@
+import { Asset } from 'expo-asset';
 import { useEffect, useImperativeHandle, useRef, type Ref } from 'react';
 import { parseGameMessage, type GameMessage, type HostMessage } from '../lib/bridge';
 
 export type GameViewHandle = { send: (msg: HostMessage) => void };
 
 /**
- * الويب (الآيفون): اللعبة داخل iframe معزول (sandbox بدون نفس الأصل) من نص HTML محلي.
- * نفس ملف اللعبة اللي بالأندرويد.
+ * الويب (الآيفون): اللعبة ملف HTML منفصل بالموقع، يفتح داخل iframe معزول
+ * (sandbox بدون نفس الأصل) — ينحمّل بس لما تنفتح اللعبة.
  */
-export function GameView({ html, onMessage, ref }: { html: string; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
+export function GameView({ asset, onMessage, ref }: { asset: number; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const handlerRef = useRef(onMessage);
   useEffect(() => {
@@ -28,5 +29,8 @@ export function GameView({ html, onMessage, ref }: { html: string; onMessage: (m
     return () => window.removeEventListener('message', listener);
   }, []);
 
-  return <iframe ref={frameRef} title="game" srcDoc={html} sandbox="allow-scripts" style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block', backgroundColor: '#EEF0FF' }} />;
+  // رابط الملف بالموقع: Expo يرجّعه بدون الامتداد (.html) فنضيفه
+  const a = Asset.fromModule(asset);
+  const src = /\.html(\?|$)/.test(a.uri) ? a.uri : `${a.uri}.${a.type || 'html'}`;
+  return <iframe ref={frameRef} title="game" src={src} sandbox="allow-scripts" style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block', backgroundColor: '#62C6FF' }} />;
 }

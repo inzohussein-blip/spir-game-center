@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo-google-fonts/readex-pro": "^0.4.1",
-    "@expo-google-fonts/reem-kufi": "^0.4.2",
+    "@expo-google-fonts/baloo-bhaijaan-2": "^0.4.2",
+    "@expo-google-fonts/lalezar": "^0.4.1",
     "@expo/metro-runtime": "~58.0.17",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "3.1.1",
     "expo": "^58.0.26",
+    "expo-asset": "~58.0.21",
     "expo-constants": "~58.0.16",
     "expo-font": "~58.0.12",
     "expo-linking": "^58.0.17",
@@ -28,6 +29,8 @@
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.30.5",
     "@eslint/js": "^10.0.1",
+    "@fontsource/baloo-bhaijaan-2": "^5.3.0",
+    "@fontsource/lalezar": "^5.3.0",
     "@types/node": "^26.6.6",
     "@types/react": "~19.3.0",
     "esbuild": "^0.28.2",
@@ -37,6 +40,7 @@
     "eslint-plugin-import-x": "^4.18.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "pixi.js": "^8.22.0",
     "typescript": "~6.0.3",
     "typescript-7": "npm:typescript@^7.0.2",
     "typescript-eslint": "^8.73.0"
@@ -50,7 +54,12 @@
     "build:web": "npm run build:games && expo export --platform web --clear && node scripts/pwa.mjs",
     "lint": "eslint . --max-warnings=0",
     "build:games": "node scripts/build-games.mjs",
-    "levels:drop-cat": "node --disable-warning=ExperimentalWarning ../../games/drop-cat/generate.mts"
+    "levels:drop-cat": "node --disable-warning=ExperimentalWarning ../../games/drop-cat/generate.mts",
+    "pretypecheck": "npm run build:games",
+    "pretest": "npm run build:games",
+    "prestart": "npm run build:games",
+    "preweb": "npm run build:games",
+    "preandroid": "npm run build:games"
   },
   "private": true,
   "overrides": {

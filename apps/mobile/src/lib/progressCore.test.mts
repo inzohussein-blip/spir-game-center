@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { activeStore, addPlayTime, addProfile, applyResult, badges, checkPin, DAILY_BONUS, doneStages, emptyFamily, emptyStore, gameOf, hashPin, levelOf, limitReached, parseFamily, parseStore, playedToday, removeProfile, streak, toggleFavorite, totalStars, updateProfile } from './progressCore.ts';
+import { activeStore, addPlayTime, addProfile, allStars, applyResult, awardSticker, buyItem, weeklyStars, wearHat, badges, checkPin, DAILY_BONUS, doneStages, emptyFamily, emptyStore, gameOf, hashPin, levelOf, limitReached, parseFamily, parseStore, playedToday, removeProfile, streak, toggleFavorite, totalStars, updateProfile } from './progressCore.ts';
 
 const now = new Date(2026, 10, 20, 10);
 
@@ -118,4 +118,34 @@ test('نقل تقدّم النسخة القديمة لأول ملف', () => {
   assert.equal(parseFamily(null, null).profiles.length, 0);
   assert.equal(parseFamily(JSON.stringify(f), null).profiles[0].name, 'لاعب 1');
   assert.equal(parseFamily('{bad', null).profiles.length, 0);
+});
+
+test('البيت: الشراء واللبس', () => {
+  let s = { ...emptyStore(), coins: 100 };
+  assert.equal(buyItem(s, { id: 'sofa', price: 120, kind: 'floor' }), null);
+  s = buyItem(s, { id: 'rug', price: 20, kind: 'floor' })!;
+  assert.equal(s.coins, 80);
+  assert.equal(buyItem(s, { id: 'rug', price: 20, kind: 'floor' }), null);
+  s = buyItem(s, { id: 'hat-cap', price: 50, kind: 'hat' })!;
+  assert.equal(s.wear, 'hat-cap');
+  assert.equal(wearHat(s, null).wear, null);
+  assert.equal(wearHat(s, 'hat-crown').wear, 'hat-cap');
+});
+
+test('الملصقات: أول فوز مضمون والألبوم الكامل ما يعطي', () => {
+  const all = ['a', 'b', 'c'];
+  const first = awardSticker(emptyStore(), all, () => 0.9);
+  assert.ok(first.sticker);
+  assert.equal(awardSticker(first.store, all, () => 0.9).sticker, null);
+  assert.ok(awardSticker(first.store, all, () => 0.1).sticker);
+  const full = { ...emptyStore(), stickers: all };
+  assert.equal(awardSticker(full, all, () => 0.1).sticker, null);
+});
+
+test('نجوم الأسبوع', () => {
+  let s = applyResult(emptyStore(), { gameId: 'xo', level: 'easy', stage: 1, won: true, stars: 3, stageCount: 1, now }).store;
+  s = applyResult(s, { gameId: 'xo', level: 'easy', stage: 2, won: true, stars: 2, stageCount: 1, now: new Date(2026, 10, 18) }).store;
+  s = applyResult(s, { gameId: 'xo', level: 'easy', stage: 3, won: true, stars: 3, stageCount: 1, now: new Date(2026, 10, 1) }).store;
+  assert.equal(weeklyStars(s, now), 5);
+  assert.equal(allStars(s), 8);
 });

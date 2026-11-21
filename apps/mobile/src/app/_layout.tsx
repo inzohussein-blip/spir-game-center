@@ -1,5 +1,5 @@
-import { ReadexPro_400Regular, ReadexPro_600SemiBold, ReadexPro_700Bold, useFonts } from '@expo-google-fonts/readex-pro';
-import { ReemKufi_700Bold } from '@expo-google-fonts/reem-kufi';
+import { BalooBhaijaan2_500Medium, BalooBhaijaan2_600SemiBold, BalooBhaijaan2_800ExtraBold, useFonts } from '@expo-google-fonts/baloo-bhaijaan-2';
+import { Lalezar_400Regular } from '@expo-google-fonts/lalezar';
 import { Stack, useRouter, useSegments, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
@@ -66,6 +66,7 @@ function AppStack() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="game/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="who" options={{ headerShown: false }} />
+        <Stack.Screen name="classics" options={{ title: 'صالة الكلاسيكيات' }} />
         <Stack.Screen name="parents" options={{ title: 'وضع الأهل' }} />
         <Stack.Screen name="play/[id]" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
       </Stack>
@@ -77,7 +78,7 @@ function AppStack() {
 const SPLASH_MS = 1300;
 
 export default function RootLayout() {
-  const [loaded] = useFonts({ ReadexPro_400Regular, ReadexPro_600SemiBold, ReadexPro_700Bold, ReemKufi_700Bold });
+  const [loaded] = useFonts({ BalooBhaijaan2_500Medium, BalooBhaijaan2_600SemiBold, BalooBhaijaan2_800ExtraBold, Lalezar_400Regular });
   const [minDone, setMinDone] = useState(false);
   const [splashGone, setSplashGone] = useState(false);
   const hideSplash = useCallback(() => setSplashGone(true), []);

@@ -66,3 +66,42 @@ export function starsFor(level: Level, maxTile: number) {
   const t = TARGET[level];
   return maxTile >= t ? 3 : maxTile >= t / 2 ? 2 : maxTile >= t / 4 ? 1 : 0;
 }
+
+export type Step = { from: number; to: number; value: number; merged: boolean };
+
+/**
+ * نفس move بس يرجع مسار كل مربع (من وين لوين) حتى الرسم يحرّكه بنعومة.
+ * merged = هذا المربع اندمج ويّا اللي قبله بنفس الخانة.
+ */
+export function moveTrace(g: Grid, dir: Dir): { grid: Grid; score: number; steps: Step[]; moved: boolean } {
+  const grid = new Array<number>(SIZE * SIZE).fill(0);
+  const steps: Step[] = [];
+  let score = 0;
+  for (let k = 0; k < SIZE; k++) {
+    const idx = lineIdx(dir, k);
+    let pos = 0;
+    let lastVal = 0;
+    let lastMerged = true;
+    for (const src of idx) {
+      const v = g[src];
+      if (!v) continue;
+      if (!lastMerged && lastVal === v) {
+        const dest = idx[pos - 1];
+        grid[dest] = v * 2;
+        score += v * 2;
+        steps.push({ from: src, to: dest, value: v, merged: true });
+        lastMerged = true;
+      } else {
+        grid[idx[pos]] = v;
+        steps.push({ from: src, to: idx[pos], value: v, merged: false });
+        lastVal = v;
+        lastMerged = false;
+        pos++;
+      }
+    }
+  }
+  return { grid, score, steps, moved: grid.some((v, i) => v !== g[i]) };
+}
+
+/** المستوى من القيمة: 2 → 0، 4 → 1، … 2048 → 10 */
+export const tierOf = (v: number) => Math.round(Math.log2(v)) - 1;

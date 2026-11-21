@@ -24,3 +24,11 @@ test('يحدّ الأرقام والنصوص', () => {
     assert.equal(m.title?.length, 40);
   }
 });
+
+test('رسائل الخريطة والبيت', () => {
+  assert.deepEqual(parseGameMessage({ spir: 1, type: 'open', target: 'drop-cat' }), { type: 'open', target: 'drop-cat' });
+  assert.equal(parseGameMessage({ spir: 1, type: 'open', target: '../evil' }), null);
+  assert.deepEqual(parseGameMessage({ spir: 1, type: 'save', key: 'buy', data: 'sofa' }), { type: 'save', key: 'buy', data: 'sofa' });
+  assert.deepEqual(parseGameMessage({ spir: 1, type: 'save', key: 'wear', data: null }), { type: 'save', key: 'wear', data: null });
+  assert.equal(parseGameMessage({ spir: 1, type: 'save', key: 'coins', data: 999 }), null);
+});

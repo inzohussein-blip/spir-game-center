@@ -39,6 +39,8 @@ export type Game = {
   levels: number;
   /** متوفرة للعب (من المرحلة 1) */
   ready: boolean;
+  /** من ألعاب «عالم سبير» الرئيسية (رسوم وشخصيات، وتعطي ملصقات) */
+  featured?: boolean;
 };
 
 export const CATEGORIES: { id: CategoryId | 'all'; label: string }[] = [
@@ -62,19 +64,19 @@ export const CATEGORY_LABEL: Record<CategoryId, string> = {
 const C = { royal: '#1A23C9', orange: '#E8590C', green: '#1C8B4A', pink: '#E0398B', teal: '#0F9B8E', violet: '#6B3FD6', navy: '#0B1033', red: '#D92D20' };
 
 export const GAMES: Game[] = [
-  { id: 'trap-cat', title: 'حاصر البزون', tagline: 'سدّ الطريق قبل ما يهرب', howTo: 'كل ضغطة تسدّ دائرة. البزون يتحرك خطوة بعد كل ضغطة — احصره قبل ما يوصل للحافة.', category: 'brain', minAge: 5, color: C.pink, icon: 'cat', players: [1], levels: 30, ready: false },
-  { id: 'merge', title: 'دمج الأرقام', tagline: 'اجمع الأرقام المتشابهة', howTo: 'اسحب للأربع اتجاهات. الأرقام المتشابهة تندمج. الهدف: 256 بالسهل، 1024 بالمتوسط، 2048 بالصعب.', category: 'puzzle', minAge: 9, color: C.orange, icon: 'numeric-2-box-multiple', players: [1], levels: 1, ready: false },
-  { id: 'blocks', title: 'بلوكات الشبكة', tagline: 'رتّب القطع وامسح الصفوف', howTo: 'اسحب القطع للشبكة. كل صف أو عمود يتعبّى ينمسح ويعطيك نقاط.', category: 'puzzle', minAge: 7, color: C.violet, icon: 'view-grid-plus', players: [1], levels: 1, ready: false },
+  { id: 'trap-cat', title: 'حاصر البزون', tagline: 'نبّت شجيرات وحاصر ميشو', howTo: 'كل ضغطة تنبّت شجيرة تسد الطريق. «ميشو» يتحرك خطوة بعد كل ضغطة — احصره قبل ما يوصل للحافة.', category: 'brain', minAge: 5, color: C.pink, icon: 'cat', players: [1], levels: 30, ready: false, featured: true },
+  { id: 'merge', title: 'دمج المخلوقات', tagline: 'ادمج السبيرات حتى يكبرون', howTo: 'اسحب للأربع اتجاهات. كل مخلوقين متشابهين يندمجون ويصيرون مخلوق أكبر. الهدف: «رمّانة» بالسهل، «نجمة» بالمتوسط، و«الملك» بالصعب.', category: 'puzzle', minAge: 9, color: C.orange, icon: 'numeric-2-box-multiple', players: [1], levels: 1, ready: false, featured: true },
+  { id: 'blocks', title: 'بلوكات الحلوى', tagline: 'رتّب الحلوى وفجّر الصفوف', howTo: 'اسحب قطع الحلوى للوحة. كل صف أو عمود يتعبّى ينفجر ويعطيك نقاط، وأكثر من خط سوا يعطي كومبو.', category: 'puzzle', minAge: 7, color: C.violet, icon: 'view-grid-plus', players: [1], levels: 1, ready: false, featured: true },
   { id: 'snake', title: 'الأفعى', tagline: 'كُل وكبر بدون ما تصطدم', howTo: 'اسحب لتغيير الاتجاه. كل أكلة تطوّل الأفعى — لا تضرب نفسك. بالسهل تعبر من الحيطان.', category: 'arcade', minAge: 7, color: C.green, icon: 'snake', players: [1], levels: 1, ready: false },
   { id: 'xo', title: 'إكس أو', tagline: 'ضد الجهاز أو ويّا صديقك', howTo: 'رتّب ثلاث علامات بخط واحد قبل خصمك. ثلاث مستويات للجهاز.', category: 'family', minAge: 5, color: C.royal, icon: 'pound', players: [1, 2], levels: 1, ready: false },
-  { id: 'connect4', title: 'أربعة بخط', tagline: 'نزّل القطع ورتّب أربعة', howTo: 'نزّل قطعة بأي عمود. أول واحد يرتّب أربع قطع بخط يفوز.', category: 'family', minAge: 6, color: C.red, icon: 'circle-multiple', players: [1, 2], levels: 1, ready: false },
+  { id: 'connect4', title: 'أربعة بخط', tagline: 'البزازين ضد الجراوي', howTo: 'نزّل قطعة بأي عمود. أول واحد يرتّب أربع قطع بخط يفوز — ضد «بندق» الجرو أو ويّا صديقك.', category: 'family', minAge: 6, color: C.red, icon: 'circle-multiple', players: [1, 2], levels: 1, ready: false, featured: true },
   { id: 'memory', title: 'ذاكرة البطاقات', tagline: 'اقلب وطابق الصور', howTo: 'اقلب بطاقتين، إذا تطابقن يبقن مفتوحات. خلّص بأقل عدد حركات.', category: 'brain', minAge: 5, color: C.orange, icon: 'cards', players: [1], levels: 12, ready: false },
   { id: 'breakout', title: 'كاسر الطوب', tagline: 'اكسر كل الطوب بالكرة', howTo: 'حرّك المضرب بإصبعك وخلي الكرة تكسر الطوب. لا تخلي الكرة توگع.', category: 'arcade', minAge: 7, color: C.teal, icon: 'wall', players: [1], levels: 20, ready: false },
   { id: 'plane', title: 'الطيارة الطايرة', tagline: 'ضغطة وحدة وطير', howTo: 'اضغط حتى تصعد الطيارة وعدّي من بين العوائق.', category: 'arcade', minAge: 6, color: C.navy, icon: 'airplane', players: [1], levels: 1, ready: false },
   { id: 'sudoku', title: 'سودوكو', tagline: 'من 4×4 للصغار لـ 9×9 للكبار', howTo: 'عبّي الشبكة بحيث كل رقم يطلع مرة وحدة بكل صف وعمود ومربع. السهل 4×4، المتوسط 6×6، الصعب 9×9.', category: 'puzzle', minAge: 12, color: C.royal, icon: 'grid', players: [1], levels: 20, ready: false },
   { id: 'word-search', title: 'البحث عن الكلمات', tagline: 'لگّي الكلمات المخفية', howTo: 'اسحب على الحروف حتى تحدد الكلمة. مواضيع: حيوانات، فواكه، مدن.', category: 'words', minAge: 8, color: C.violet, icon: 'text-search', players: [1], levels: 16, ready: false },
   { id: 'dominoes', title: 'دومينو', tagline: 'اللعبة الشعبية ضد الجهاز', howTo: 'نزّل قطعة تطابق أحد الطرفين. أول واحد يخلص قطعه يفوز بالجولة.', category: 'family', minAge: 10, color: C.green, icon: 'dice-multiple', players: [1], levels: 1, ready: false },
-  { id: 'drop-cat', title: 'نزّل البزون', tagline: 'كل بزون لفتحة لونه', howTo: 'اسحب القطع حتى تفتح الطريق، وكل بزون يطيح بالفتحة اللي بنفس لونه. بالصعب أكو مؤقت.', category: 'puzzle', minAge: 5, color: C.teal, icon: 'paw', players: [1], levels: 20, ready: false },
+  { id: 'drop-cat', title: 'نزّل البزون', tagline: 'كل بزون لفتحة لونه', howTo: 'اسحب القطع حتى تفتح الطريق، وكل بزون يطيح بالفتحة اللي بنفس لونه. بالصعب أكو مؤقت.', category: 'puzzle', minAge: 5, color: C.teal, icon: 'paw', players: [1], levels: 40, ready: false, featured: true },
 ];
 
 /** لعبة جاهزة إذا انبنت بمجلد games/ */

@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
+import { COVERS } from '../lib/covers';
 import type { Game } from '../lib/games';
 import { fonts, themed } from '../theme';
 import { Halftone, Text } from './ui';
@@ -13,8 +14,14 @@ export function GameArt({ game, size = 52, showAge = true, rows = 8, style }: { 
   const s = useStyles();
   return (
     <View style={[s.art, { backgroundColor: game.color }, style]}>
-      <Halftone rows={rows} cols={16} color="rgba(255,255,255,0.18)" style={{ top: 6, left: 6 }} />
-      <MaterialCommunityIcons name={game.icon} size={size} color="#FFFFFF" />
+      {COVERS[game.id] ? (
+        <Image source={COVERS[game.id]} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} accessibilityIgnoresInvertColors />
+      ) : (
+        <>
+          <Halftone rows={rows} cols={16} color="rgba(255,255,255,0.18)" style={{ top: 6, left: 6 }} />
+          <MaterialCommunityIcons name={game.icon} size={size} color="#FFFFFF" />
+        </>
+      )}
       {showAge ? (
         <View style={s.age}>
           <Text style={s.ageText}>{`+${game.minAge}`}</Text>

@@ -1,6 +1,6 @@
 {
   "id": "connect4",
-  "version": 1,
+  "version": 2,
   "title": "أربعة بخط",
   "orientation": "portrait",
   "offline": true,

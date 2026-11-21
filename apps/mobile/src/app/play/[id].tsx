@@ -5,14 +5,15 @@ import { AppState, BackHandler, Pressable, Vibration, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GameView, type GameViewHandle } from '../../components/GameView';
 import { Button, Empty, Halftone, Text } from '../../components/ui';
-import { GAME_HTML } from '../../games/bundles.generated';
+import { GAME_ASSET } from '../../games/bundles.generated';
+import { STICKERS } from '../../games/catalog.generated';
 import type { GameMessage, GameSettings } from '../../lib/bridge';
 import { dailyFor, gameById } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
 import { DAILY_BONUS, LEVEL_LABEL, LEVELS, limitReached, type Level } from '../../lib/progressCore';
 import { fonts, fromLeft, space, themed, useColors, wideSpaces } from '../../theme';
 
-type EndState = { won: boolean; title: string; subtitle?: string; stars: number; coins: number; newBest: boolean; firstWin: boolean; dailyBonus: boolean; hasNext: boolean };
+type EndState = { won: boolean; title: string; subtitle?: string; stars: number; coins: number; newBest: boolean; firstWin: boolean; dailyBonus: boolean; sticker: string | null; hasNext: boolean };
 
 /** كل كم ثانية نحسب وقت اللعب */
 const TICK_S = 20;
@@ -24,7 +25,7 @@ const TICK_S = 20;
 export default function Play() {
   const params = useLocalSearchParams<{ id: string; level?: string; stage?: string; players?: string }>();
   const game = gameById(String(params.id));
-  const html = game ? GAME_HTML[game.id] : undefined;
+  const asset = game ? GAME_ASSET[game.id] : undefined;
   const s = useStyles();
   const c = useColors();
   const router = useRouter();
@@ -80,6 +81,7 @@ export default function Play() {
             newBest: out.newBest,
             firstWin: out.firstWin,
             dailyBonus: out.dailyBonus,
+            sticker: out.sticker,
             hasNext: won && (game.levels <= 1 || st < game.levels),
           });
         }
@@ -132,7 +134,7 @@ export default function Play() {
   const blocked = limitReached(profile, store, new Date(clock));
   const [blockedAtStart] = useState(blocked);
 
-  if (!game || !html) return <Empty title="هاي اللعبة بعدها ما جاهزة" />;
+  if (!game || !asset) return <Empty title="هاي اللعبة بعدها ما جاهزة" />;
   if (blockedAtStart) {
     return (
       <View style={[s.root, s.limitBox, { paddingTop: insets.top + space.xxl }]}>
@@ -167,7 +169,7 @@ export default function Play() {
       </View>
 
       <View style={{ flex: 1 }}>
-        <GameView ref={viewRef} html={html} onMessage={onMessage} />
+        <GameView ref={viewRef} asset={asset} onMessage={onMessage} />
       </View>
 
       {paused && !end ? (
@@ -205,6 +207,7 @@ export default function Play() {
               {end.newBest ? <Text style={[s.chip, s.chipYellow]}>رقم قياسي جديد</Text> : null}
               {end.firstWin ? <Text style={[s.chip, s.chipYellow]}>وسام: أول فوز</Text> : null}
               {end.dailyBonus ? <Text style={[s.chip, s.chipYellow]}>{`تحدّي اليوم +${DAILY_BONUS}`}</Text> : null}
+              {end.sticker ? <Text style={[s.chip, s.chipSticker]}>{`ملصق جديد: «${STICKERS.find((x) => x.id === end.sticker)?.name ?? ''}»`}</Text> : null}
               <Text style={s.chip}>{`+${end.coins} عملة`}</Text>
             </View>
             {blocked ? (
@@ -246,5 +249,6 @@ const useStyles = themed((c) => ({
   chip: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 18, color: c.primary, backgroundColor: c.primarySoft, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
   limitBox: { alignItems: 'center', gap: space.lg, paddingHorizontal: space.xl },
   limitText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24, color: c.muted, textAlign: 'center' },
+  chipSticker: { color: '#FFFFFF', backgroundColor: '#FF6B5B' },
   chipYellow: { color: c.warnText, backgroundColor: c.warnSoft },
 }));

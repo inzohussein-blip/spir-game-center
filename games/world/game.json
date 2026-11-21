@@ -1,0 +1,10 @@
+{
+  "id": "world",
+  "version": 1,
+  "title": "عالم سبير",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original",
+  "kind": "scene"
+}

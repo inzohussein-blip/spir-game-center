@@ -31,9 +31,17 @@ export type Store = {
   playMin: Record<string, number>;
   /** آخر يوم انربحت بيه مكافأة تحدّي اليوم */
   dailyDone: string;
+  /** أغراض البيت المشتراة */
+  owned: string[];
+  /** القبعة اللي لابسها سبير */
+  wear: string | null;
+  /** الملصقات بالألبوم */
+  stickers: string[];
+  /** النجوم المربوحة بكل يوم (آخر 14 يوم) — لتحدّي العائلة الأسبوعي */
+  starLog: Record<string, number>;
 };
 
-export const emptyStore = (): Store => ({ v: 1, coins: 0, xp: 0, sound: true, days: [], games: {}, favorites: [], playMin: {}, dailyDone: '' });
+export const emptyStore = (): Store => ({ v: 1, coins: 0, xp: 0, sound: true, days: [], games: {}, favorites: [], playMin: {}, dailyDone: '', owned: [], wear: null, stickers: [], starLog: {} });
 
 export const emptyGame = (): GameProgress => ({ next: { easy: 1, medium: 1, hard: 1 }, stars: {}, plays: 0, wins: 0, lastPlayed: 0, lastLevel: 'easy' });
 
@@ -62,6 +70,10 @@ export function normalizeStore(s: Partial<Store>): Store {
     favorites: Array.isArray(s.favorites) ? s.favorites : [],
     playMin: s.playMin && typeof s.playMin === 'object' ? s.playMin : {},
     dailyDone: typeof s.dailyDone === 'string' ? s.dailyDone : '',
+    owned: Array.isArray(s.owned) ? s.owned : [],
+    wear: typeof s.wear === 'string' ? s.wear : null,
+    stickers: Array.isArray(s.stickers) ? s.stickers : [],
+    starLog: s.starLog && typeof s.starLog === 'object' ? s.starLog : {},
   };
 }
 
@@ -105,9 +117,11 @@ export function applyResult(store: Store, r: Result): Outcome {
   };
   const today = dayKey(r.now);
   const days = store.days.includes(today) ? store.days : [...store.days, today].slice(-30);
+  const log = { ...store.starLog, [today]: (store.starLog[today] ?? 0) + (r.won ? stars : 0) };
+  const starLog = Object.fromEntries(Object.keys(log).sort().slice(-14).map((d) => [d, log[d]]));
   const totalWinsBefore = Object.values(store.games).reduce((a, g) => a + g.wins, 0);
   return {
-    store: { ...store, coins: store.coins + coins, xp: store.xp + coins, days, games: { ...store.games, [r.gameId]: game }, dailyDone: dailyBonus ? today : store.dailyDone },
+    store: { ...store, coins: store.coins + coins, xp: store.xp + coins, days, starLog, games: { ...store.games, [r.gameId]: game }, dailyDone: dailyBonus ? today : store.dailyDone },
     coins,
     newBest,
     firstWin: r.won && totalWinsBefore === 0,
@@ -143,7 +157,9 @@ export const BADGES = [
   { id: 'stars-50', title: '50 نجمة', icon: 'star' },
   { id: 'cat-trapper', title: 'صياد البزازين', icon: 'paw' },
   { id: 'cat-herder', title: 'راعي البزازين', icon: 'heart' },
-  { id: 'explorer', title: 'جرّب 4 ألعاب', icon: 'compass' },
+  { id: 'explorer', title: 'جرّب 5 ألعاب', icon: 'compass' },
+  { id: 'collector', title: '10 ملصقات', icon: 'images' },
+  { id: 'decorator', title: 'زيّن البيت', icon: 'home' },
 ] as const;
 export type BadgeId = (typeof BADGES)[number]['id'];
 
@@ -156,7 +172,9 @@ export function badges(s: Store): Record<BadgeId, boolean> {
     'stars-50': stars >= 50,
     'cat-trapper': (s.games['trap-cat']?.wins ?? 0) >= 10,
     'cat-herder': Object.keys(s.games['drop-cat']?.stars ?? {}).length >= 20,
-    explorer: games.filter((g) => g.plays > 0).length >= 4,
+    explorer: games.filter((g) => g.plays > 0).length >= 5,
+    collector: s.stickers.length >= 10,
+    decorator: s.owned.length >= 5,
   };
 }
 
@@ -272,3 +290,42 @@ export function parseFamily(raw: string | null, legacy: string | null): Family {
 
 /** هل خلص وقت اللعب لهذا الملف اليوم؟ */
 export const limitReached = (p: Profile | null, s: Store, now: Date) => !!p && p.limitMin > 0 && playedToday(s, now) >= p.limitMin;
+
+// ---------- عالم سبير: البيت، الملصقات، تحدّي العائلة ----------
+
+/** الألعاب الرئيسية (تعطي ملصقات وتطلع على الخريطة) */
+export const FEATURED = ['drop-cat', 'trap-cat', 'merge', 'blocks', 'connect4'];
+
+/** شراء غرض للبيت: null إذا عنده أو ما تكفي العملات */
+export function buyItem(s: Store, item: { id: string; price: number; kind: string }): Store | null {
+  if (s.owned.includes(item.id) || s.coins < item.price || item.price <= 0) return null;
+  return { ...s, coins: s.coins - item.price, owned: [...s.owned, item.id], wear: item.kind === 'hat' ? item.id : s.wear };
+}
+
+/** يلبس قبعة (لازم تكون مشتراة) أو يشيلها (null) */
+export const wearHat = (s: Store, id: string | null): Store => (id === null || s.owned.includes(id) ? { ...s, wear: id } : s);
+
+/**
+ * ملصق بعد الفوز بلعبة رئيسية: أول فوز مضمون، وبعدها فرصة 50%.
+ * يرجع الملصق الجديد (أو null إذا ما طلع أو الألبوم كامل).
+ */
+export function awardSticker(s: Store, all: readonly string[], rand: () => number): { store: Store; sticker: string | null } {
+  const missing = all.filter((id) => !s.stickers.includes(id));
+  if (!missing.length) return { store: s, sticker: null };
+  if (s.stickers.length > 0 && rand() >= 0.5) return { store: s, sticker: null };
+  const sticker = missing[Math.floor(rand() * missing.length) % missing.length];
+  return { store: { ...s, stickers: [...s.stickers, sticker] }, sticker };
+}
+
+/** نجوم آخر 7 أيام */
+export function weeklyStars(s: Store, now: Date): number {
+  let sum = 0;
+  for (let k = 0; k < 7; k++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - k);
+    sum += s.starLog[dayKey(d)] ?? 0;
+  }
+  return sum;
+}
+
+/** مجموع النجوم بكل الألعاب */
+export const allStars = (s: Store) => Object.values(s.games).reduce((a, g) => a + totalStars(g), 0);

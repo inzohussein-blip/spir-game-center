@@ -42,3 +42,7 @@ yarn-error.*
 
 # ملف Firebase ينكتب وقت البناء من الأسرار
 google-services.json
+
+# ملفات الألعاب المبنية (npm run build:games يولّدها)
+/assets/games/
+/src/games/*.generated.ts

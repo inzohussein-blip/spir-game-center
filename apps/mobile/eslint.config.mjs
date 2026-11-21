@@ -40,7 +40,7 @@ export default defineConfig([
   },
   {
     // ملفات إعداد CommonJS
-    files: ['**/*.cjs', 'app.config.js'],
+    files: ['**/*.cjs', 'app.config.js', 'metro.config.js'],
     languageOptions: { sourceType: 'commonjs' },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },

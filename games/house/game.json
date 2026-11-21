@@ -1,0 +1,10 @@
+{
+  "id": "house",
+  "version": 1,
+  "title": "بيت سبير",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original",
+  "kind": "scene"
+}

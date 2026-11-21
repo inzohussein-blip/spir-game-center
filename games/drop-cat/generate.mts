@@ -15,7 +15,7 @@ const SPECS: Record<'easy' | 'medium' | 'hard', Spec> = {
   medium: { sizes: [5, 6], cats: [2, 2], blocks: [3, 5], walls: [0, 1], par: [5, 9], long: 1 },
   hard: { sizes: [6, 6], cats: [2, 3], blocks: [4, 6], walls: [1, 2], par: [8, 15], long: 2 },
 };
-const PER_LEVEL = 20;
+const PER_LEVEL = 40;
 
 function attempt(spec: Spec, seed: number): LevelDef | null {
   const r = rng(seed);
@@ -90,7 +90,7 @@ const out: Record<string, LevelDef[]> = {};
 for (const [name, spec] of Object.entries(SPECS)) {
   const found: LevelDef[] = [];
   const seen = new Set<string>();
-  for (let seed = 1; found.length < PER_LEVEL * 3 && seed < 400_000; seed++) {
+  for (let seed = 1; found.length < PER_LEVEL * 3 && seed < 900_000; seed++) {
     const l = attempt(spec, seed * 977 + name.length);
     if (!l) continue;
     const k = JSON.stringify(l);

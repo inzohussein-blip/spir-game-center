@@ -1,7 +1,7 @@
 {
   "id": "merge",
-  "version": 1,
-  "title": "دمج الأرقام",
+  "version": 2,
+  "title": "دمج المخلوقات",
   "orientation": "portrait",
   "offline": true,
   "license": "MIT",

@@ -1,11 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { HOUSE_ITEMS, STICKERS } from '../games/catalog.generated';
 import {
   activeProfile,
   activeStore,
   addPlayTime,
   addProfile,
   applyResult,
+  awardSticker,
+  buyItem,
+  FEATURED,
+  wearHat,
   emptyFamily,
   hashPin,
   parseFamily,
@@ -33,7 +38,10 @@ type ProgressState = {
   store: Store;
   /** اختار لاعب بهاي الجلسة؟ (إذا أكو أكثر من ملف نسأل «منو يلعب؟» عند الفتح) */
   chosen: boolean;
-  record: (r: Result) => Outcome;
+  record: (r: Result) => Outcome & { sticker: string | null };
+  /** شراء غرض للبيت (التحقق من السعر هنا، مو باللعبة) */
+  buy: (id: string) => boolean;
+  wear: (id: string | null) => void;
   setSound: (on: boolean) => void;
   addMinutes: (min: number) => void;
   toggleFav: (id: string) => void;
@@ -51,7 +59,9 @@ const ProgressContext = createContext<ProgressState>({
   profile: null,
   store: activeStore(emptyFamily()),
   chosen: false,
-  record: () => ({ store: activeStore(emptyFamily()), coins: 0, newBest: false, firstWin: false, dailyBonus: false }),
+  record: () => ({ store: activeStore(emptyFamily()), coins: 0, newBest: false, firstWin: false, dailyBonus: false, sticker: null }),
+  buy: () => false,
+  wear: noop,
   setSound: noop,
   addMinutes: noop,
   toggleFav: noop,
@@ -93,11 +103,28 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const record = useCallback(
     (r: Result) => {
       const out = applyResult(activeStore(ref.current), r);
-      save(setActiveStore(ref.current, out.store));
-      return out;
+      let next = out.store;
+      let sticker: string | null = null;
+      if (r.won && FEATURED.includes(r.gameId)) {
+        const a = awardSticker(next, STICKERS.map((x) => x.id), Math.random);
+        next = a.store;
+        sticker = a.sticker;
+      }
+      save(setActiveStore(ref.current, next));
+      return { ...out, store: next, sticker };
     },
     [save],
   );
+  const buy = useCallback(
+    (id: string) => {
+      const item = HOUSE_ITEMS.find((x) => x.id === id);
+      const next = item ? buyItem(activeStore(ref.current), item) : null;
+      if (next) save(setActiveStore(ref.current, next));
+      return !!next;
+    },
+    [save],
+  );
+  const wear = useCallback((id: string | null) => updateStore((s) => wearHat(s, id)), [updateStore]);
   const setSound = useCallback((on: boolean) => updateStore((s) => ({ ...s, sound: on })), [updateStore]);
   const addMinutes = useCallback((min: number) => updateStore((s) => addPlayTime(s, min, new Date())), [updateStore]);
   const toggleFav = useCallback((id: string) => updateStore((s) => toggleFavorite(s, id)), [updateStore]);
@@ -130,6 +157,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       store: activeStore(family),
       chosen,
       record,
+      buy,
+      wear,
       setSound,
       addMinutes,
       toggleFav,
@@ -139,7 +168,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       deleteProfile,
       setPin,
     }),
-    [ready, family, chosen, record, setSound, addMinutes, toggleFav, choose, createProfile, editProfile, deleteProfile, setPin],
+    [ready, family, chosen, record, buy, wear, setSound, addMinutes, toggleFav, choose, createProfile, editProfile, deleteProfile, setPin],
   );
   return <ProgressContext value={value}>{children}</ProgressContext>;
 }

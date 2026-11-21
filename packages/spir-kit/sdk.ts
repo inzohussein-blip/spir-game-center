@@ -19,10 +19,14 @@ export type GameMessage =
   | { type: 'hud'; text: string; score?: string }
   | { type: 'complete'; stars: number; score: number; moves?: number; title?: string; subtitle?: string; timeUp?: boolean }
   | { type: 'over'; score: number; title?: string; subtitle?: string }
-  | { type: 'vibrate' };
+  | { type: 'vibrate' }
+  /** من الخريطة: افتح لعبة أو مكان */
+  | { type: 'open'; target: string }
+  /** من البيت: احفظ بيانات (مشتريات، ترتيب) */
+  | { type: 'save'; key: string; data: unknown };
 
 /** من التطبيق للعبة */
-export type HostMessage = { type: 'start'; settings: Settings } | { type: 'pause' } | { type: 'resume' } | { type: 'sound'; on: boolean };
+export type HostMessage = { type: 'start'; settings: Settings } | { type: 'pause' } | { type: 'resume' } | { type: 'sound'; on: boolean } | { type: 'state'; data: unknown };
 
 type Bridge = { postMessage: (s: string) => void };
 

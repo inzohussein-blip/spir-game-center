@@ -2,22 +2,27 @@
 // حتى التطبيق يفتحها بـ WebView (أندرويد) أو iframe (ويب).
 // يرفض أي لعبة: بدون game.json صحيح، بدون رخصة، أكبر من الحد، أو فيها روابط http خارجية.
 import { build } from 'esbuild';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../../../games/', import.meta.url));
 const out = fileURLToPath(new URL('../src/games/', import.meta.url));
-const MAX_BYTES = 300 * 1024;
+const assetsDir = fileURLToPath(new URL('../assets/games/', import.meta.url));
+rmSync(assetsDir, { recursive: true, force: true });
+mkdirSync(assetsDir, { recursive: true });
+const MAX_BYTES = 1536 * 1024;
+const nodeModules = fileURLToPath(new URL('../node_modules/', import.meta.url));
 const LICENSES = new Set(['MIT', 'Apache-2.0', 'CC0-1.0', 'BSD-3-Clause', 'Unlicense']);
 
 const html = (js) =>
   '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
   '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">' +
-  `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">` +
+  `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; worker-src blob:">` +
   `</head><body><script>${js.replace(/<\/script/gi, '<\\/script')}</script></body></html>`;
 
 const bundles = {};
+const scenes = [];
 const errors = [];
 for (const id of readdirSync(root).sort()) {
   const dir = join(root, id);
@@ -35,12 +40,16 @@ for (const id of readdirSync(root).sort()) {
     write: false,
     legalComments: 'none',
     logLevel: 'silent',
+    nodePaths: [nodeModules],
+    loader: { '.woff2': 'dataurl' },
   });
   const page = html(result.outputFiles[0].text);
-  if (/https?:\/\/(?!www\.w3\.org)/.test(page)) errors.push(`${id}: فيها رابط خارجي`);
+  // روابط تحمّل شي من النت فعلاً (src/href/url()/fetch) — نصوص الأخطاء داخل المكتبات مسموحة
+  if (/(src=|href=|url\(|fetch\()\s*["'`]?https?:/i.test(page)) errors.push(`${id}: تحمّل شي من رابط خارجي`);
   const bytes = Buffer.byteLength(page);
   if (bytes > MAX_BYTES) errors.push(`${id}: حجمها ${Math.round(bytes / 1024)}KB أكبر من ${MAX_BYTES / 1024}KB`);
   bundles[id] = page;
+  if (m.kind === 'scene') scenes.push(id);
   console.log(`✓ ${id.padEnd(10)} ${String(Math.round(bytes / 1024)).padStart(4)}KB  (${m.title})`);
 }
 if (errors.length) {
@@ -49,10 +58,17 @@ if (errors.length) {
 }
 
 const ids = Object.keys(bundles);
+const games = ids.filter((id) => !scenes.includes(id));
+// كل لعبة ملف HTML مستقل (asset) — ينحمّل بس لما تنفتح، مو ويّا التطبيق كله
+for (const id of ids) writeFileSync(join(assetsDir, `${id}.html`), bundles[id]);
 writeFileSync(
   join(out, 'bundles.generated.ts'),
   '// ملف مولّد بـ scripts/build-games.mjs — لا تعدّله يدوياً\n' +
-    `export const GAME_HTML: Record<string, string> = {\n${ids.map((id) => `  ${JSON.stringify(id)}: ${JSON.stringify(bundles[id])},`).join('\n')}\n};\n`,
+    '/* eslint-disable @typescript-eslint/no-require-imports */\n' +
+    `export const GAME_ASSET: Record<string, number> = {\n${ids.map((id) => `  ${JSON.stringify(id)}: require('../../assets/games/${id}.html'),`).join('\n')}\n};\n`,
 );
-writeFileSync(join(out, 'ready.generated.ts'), `// ملف مولّد بـ scripts/build-games.mjs — الألعاب الجاهزة للعب\nexport const READY_GAMES: readonly string[] = ${JSON.stringify(ids)};\n`);
-console.log(`${ids.length} ألعاب جاهزة`);
+writeFileSync(join(out, 'ready.generated.ts'), `// ملف مولّد بـ scripts/build-games.mjs — الألعاب الجاهزة للعب، والمشاهد (الخريطة والبيت)\nexport const READY_GAMES: readonly string[] = ${JSON.stringify(games)};\nexport const SCENES: readonly string[] = ${JSON.stringify(scenes)};\n`);
+// قائمة أغراض البيت والملصقات (التطبيق يتحقق من الأسعار منها)
+const catalog = JSON.parse(readFileSync(join(root, 'house', 'catalog.json'), 'utf8'));
+writeFileSync(join(out, 'catalog.generated.ts'), `// ملف مولّد من games/house/catalog.json — لا تعدّله يدوياً\nexport const HOUSE_ITEMS: readonly { id: string; name: string; price: number; kind: string }[] = ${JSON.stringify(catalog.items)};\nexport const STICKERS: readonly { id: string; name: string }[] = ${JSON.stringify(catalog.stickers)};\n`);
+console.log(`${games.length} ألعاب + ${scenes.length} مشاهد`);

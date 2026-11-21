@@ -4,9 +4,9 @@ import mark from '../../assets/splash-icon.png';
 import { fromLeft } from '../theme';
 import { Halftone } from './ui';
 
-const ROYAL = '#1A23C9';
-const YELLOW = '#FFD60A';
-const NAVY = '#0B1033';
+const ROYAL = '#4FB8FF';
+const YELLOW = '#FFC93C';
+const NAVY = '#2A2350';
 /** نفس حجم الشعار بشاشة البداية مال النظام (imageWidth بـ app.json) حتى ما يقفز */
 const MARK = 180;
 const NATIVE = Platform.OS !== 'web';
@@ -64,10 +64,10 @@ export function BrandSplash({
         </Animated.View>
         <Animated.View style={{ position: 'absolute', top: '50%', marginTop: MARK / 2 - 62, alignItems: 'center', gap: 4, opacity: textOpacity, transform: [{ translateY: textY }] }}>
           {/* «Spir Games» — «Spir» بالأصفر */}
-          <Text style={{ color: '#FFFFFF', fontSize: 36, lineHeight: 50, fontFamily: fontsReady ? 'ReadexPro_700Bold' : undefined, fontWeight: fontsReady ? undefined : '800', writingDirection: 'ltr' }}>
+          <Text style={{ color: '#FFFFFF', fontSize: 36, lineHeight: 50, fontFamily: fontsReady ? 'Lalezar_400Regular' : undefined, fontWeight: fontsReady ? undefined : '800', writingDirection: 'ltr' }}>
             <Text style={{ color: YELLOW }}>Spir</Text> Games
           </Text>
-          <Text style={{ color: '#C9CEF5', fontSize: 15, fontFamily: fontsReady ? 'ReadexPro_600SemiBold' : undefined }}>العب · فكّر · اجمع النجوم</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 16, fontFamily: fontsReady ? 'BalooBhaijaan2_600SemiBold' : undefined }}>عالم سبير للألعاب</Text>
         </Animated.View>
       </View>
 

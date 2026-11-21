@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { canMove, move, slideRow, spawn, starsFor } from './logic.ts';
+import { canMove, move, moveTrace, slideRow, spawn, starsFor, tierOf } from './logic.ts';
 
 test('الدمج مرة وحدة بكل حركة', () => {
   assert.deepEqual(slideRow([2, 2, 2, 2]).row, [4, 4, 0, 0]);
@@ -37,4 +37,21 @@ test('النجوم حسب أكبر رقم', () => {
   assert.equal(starsFor('easy', 128), 2);
   assert.equal(starsFor('easy', 64), 1);
   assert.equal(starsFor('easy', 32), 0);
+});
+
+
+test('مسار الحركة يطابق النتيجة', () => {
+  const rand = (() => { let a = 7; return () => ((a = (a * 16807) % 2147483647) / 2147483647); })();
+  for (let n = 0; n < 300; n++) {
+    const g = Array.from({ length: 16 }, () => (rand() < 0.5 ? 0 : 2 ** (1 + Math.floor(rand() * 4))));
+    for (const d of ['up', 'down', 'left', 'right'] as const) {
+      const a = move(g, d);
+      const b = moveTrace(g, d);
+      assert.deepEqual(b.grid, a.grid);
+      assert.equal(b.score, a.score);
+      assert.equal(b.steps.length, g.filter(Boolean).length);
+    }
+  }
+  assert.equal(tierOf(2), 0);
+  assert.equal(tierOf(2048), 10);
 });

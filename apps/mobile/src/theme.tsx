@@ -64,9 +64,10 @@ export type Palette = {
   heroSky: string;
 };
 
-/** الثيمات: الأزرق (ملكي)، الأسود، برشلونة، ريال مدريد */
-export type ThemeName = 'royal' | 'black' | 'barca' | 'madrid';
+/** الثيمات: «سبير» (الافتراضي — هوية عالم سبير)، والثيمات القديمة: الأزرق، الأسود، برشلونة، ريال مدريد */
+export type ThemeName = 'spir' | 'royal' | 'black' | 'barca' | 'madrid';
 export const THEMES: { id: ThemeName; label: string; swatch: [string, string] }[] = [
+  { id: 'spir', label: 'سبير', swatch: ['#4FB8FF', '#FFC93C'] },
   { id: 'royal', label: 'الأزرق', swatch: ['#1A23C9', '#FFD60A'] },
   { id: 'black', label: 'الأسود', swatch: ['#121D33', '#FFCC03'] },
   { id: 'barca', label: 'برشلونة', swatch: ['#004D98', '#A50044'] },
@@ -341,7 +342,77 @@ const madridDark: Palette = {
   tabInactive: '#9C90B8',
 };
 
+// ---------- «سبير»: سماء، شمس، كريمي، وحد حبري ناعم (نفس رسوم الألعاب) ----------
+const S_INK = '#2A2350';
+const S_SKY = '#4FB8FF';
+const S_SUN = '#FFC93C';
+const spirBase = {
+  cta: S_SUN,
+  onCta: S_INK,
+  bandBg: S_SKY,
+  header: S_SKY,
+  bandGradient: 'linear-gradient(180deg, #62C6FF 0%, #4FB8FF 100%)',
+  primaryGradient: 'linear-gradient(180deg, #62C6FF 0%, #2E7BFF 100%)',
+  headerBg: S_SKY,
+  headerImage: 'radial-gradient(70% 90% at 85% 0%, rgba(255,244,176,0.75) 0%, rgba(255,244,176,0) 60%), linear-gradient(180deg, #62C6FF 0%, #4FB8FF 100%)',
+  onHeader: '#FFFFFF',
+  onHeaderMuted: 'rgba(255,255,255,0.9)',
+  headerDots: 'rgba(255,255,255,0.22)',
+  tabBg: S_INK,
+  tabActive: S_SUN,
+  tabInactive: '#B8B2E0',
+  timeBg: S_SKY,
+  onTime: '#FFFFFF',
+  onTimeSub: S_SUN,
+  heroSky: 'linear-gradient(180deg, #62C6FF 0%, #CFF0FF 100%)',
+  pitch: '#3DD68C',
+};
+const spirLight: Palette = {
+  ...light,
+  ...spirBase,
+  primary: '#2E7BFF',
+  primaryDark: S_INK,
+  primarySoft: '#E3F1FF',
+  accent: '#F5A300',
+  accentSoft: '#FFF1C8',
+  bg: '#FFF7EA',
+  card: '#FFFFFF',
+  cardAlt: '#FFEFD6',
+  text: S_INK,
+  muted: '#6B6494',
+  border: '#F0DCC0',
+  success: '#1FA463',
+  successSoft: '#E1F7EA',
+  teamA: '#2E7BFF',
+  teamB: '#FF6B5B',
+  warnSoft: '#FFF1C8',
+  warnText: '#7A5200',
+};
+const spirDark: Palette = {
+  ...dark,
+  ...spirBase,
+  primary: '#8FC8FF',
+  primaryDark: '#000000',
+  primarySoft: '#25306A',
+  accent: S_SUN,
+  accentSoft: '#3A3010',
+  bg: '#1B1640',
+  card: '#262058',
+  cardAlt: '#30296C',
+  text: '#FFF7EA',
+  muted: '#B8B2E0',
+  border: '#3B3480',
+  teamA: '#8FC8FF',
+  teamB: '#FF8A7A',
+  header: '#2A2560',
+  headerBg: '#2A2560',
+  headerImage: 'linear-gradient(180deg, #3A2F7A 0%, #2A2560 100%)',
+  bandBg: '#2A2560',
+  tabBg: '#120E30',
+};
+
 const PALETTES: Record<ThemeName, { light: Palette; dark: Palette }> = {
+  spir: { light: spirLight, dark: spirDark },
   royal: { light, dark },
   black: { light: blackLight, dark: blackDark },
   barca: { light: barcaLight, dark: barcaDark },
@@ -366,11 +437,11 @@ export const padLeft = (n: number) => (Platform.OS === 'web' ? { paddingLeft: n 
 export const ctaShadow = (c: Palette) => `0 3px 0 ${c.primaryDark}`;
 
 export const fonts = {
-  regular: 'ReadexPro_400Regular',
-  semibold: 'ReadexPro_600SemiBold',
-  bold: 'ReadexPro_700Bold',
-  /** خط العناوين والأرقام الكبيرة (كوفي) */
-  display: 'ReemKufi_700Bold',
+  regular: 'BalooBhaijaan2_500Medium',
+  semibold: 'BalooBhaijaan2_600SemiBold',
+  bold: 'BalooBhaijaan2_800ExtraBold',
+  /** خط العناوين الكبيرة (لالي زار — مرح ومناسب للأطفال) */
+  display: 'Lalezar_400Regular',
 };
 
 /** المسافات: كلها من مضاعفات 4 */
@@ -403,13 +474,13 @@ interface ThemeState {
 
 const KEY = 'spir-games-theme';
 const THEME_KEY = 'spir-games-theme-name';
-const ThemeContext = createContext<ThemeState>({ mode: 'light', scheme: 'light', colors: light, setMode: () => {}, theme: 'royal', setTheme: () => {} });
+const ThemeContext = createContext<ThemeState>({ mode: 'light', scheme: 'light', colors: spirLight, setMode: () => {}, theme: 'spir', setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
   // الافتراضي فاتح؛ اللاعب يكدر يختار «حسب الجهاز» أو «داكن» من حسابي
   const [mode, setMode] = useState<ThemeMode>('light');
-  const [theme, setTheme] = useState<ThemeName>('royal');
+  const [theme, setTheme] = useState<ThemeName>('spir');
 
   useEffect(() => {
     AsyncStorage.getItem(KEY)
