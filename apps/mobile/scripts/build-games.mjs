@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL('../../../games/', import.meta.url));
 const out = fileURLToPath(new URL('../src/games/', import.meta.url));
 const assetsDir = fileURLToPath(new URL('../assets/games/', import.meta.url));
 rmSync(assetsDir, { recursive: true, force: true });
+mkdirSync(out, { recursive: true });
 mkdirSync(assetsDir, { recursive: true });
 const MAX_BYTES = 1536 * 1024;
 const nodeModules = fileURLToPath(new URL('../node_modules/', import.meta.url));
