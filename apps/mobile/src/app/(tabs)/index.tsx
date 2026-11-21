@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { GameCard, GameTile } from '../../components/GameCard';
+import { UpdateBanner } from '../../components/UpdateCard';
 import { Chip, Halftone, PageHeader, SectionTitle, Text } from '../../components/ui';
 import { formatNumber, greetingFor } from '../../lib/format';
 import { CATEGORIES, dailyFor, filterGames, visibleGames, type CategoryId } from '../../lib/games';
@@ -54,6 +55,7 @@ export default function Home() {
         }
       />
       <ScrollView contentContainerStyle={s.body}>
+        <UpdateBanner />
         <Pressable onPress={() => router.push({ pathname: '/game/[id]', params: { id: challenge.id } })} style={s.hero} accessibilityRole="button" accessibilityLabel={`تحدّي اليوم: ${challenge.title}`}>
           <Halftone rows={8} cols={30} color="rgba(255,255,255,0.10)" style={{ top: 8, left: 8 }} />
           <View style={[s.heroIcon, { backgroundColor: challenge.color }]}>

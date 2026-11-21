@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Avatar } from '../../components/Avatar';
+import { UpdateCard } from '../../components/UpdateCard';
 import { useProgress } from '../../lib/progress';
 import { levelOf, playedToday } from '../../lib/progressCore';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
@@ -63,6 +64,9 @@ export default function Profile() {
         <Text style={s.group}>المظهر</Text>
         <Segmented options={MODES} value={mode} onChange={setMode} />
 
+
+        <Text style={s.group}>التحديثات</Text>
+        <UpdateCard />
 
         <ListGroup title="حول">
           <ListRow icon="information-circle" title="Spir Games" subtitle={`النسخة ${version} · مجاني بالكامل وبدون إعلانات`} chevron={false} />
