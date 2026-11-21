@@ -11,6 +11,10 @@ on:
         description: 'انشر كإصدار (يظهر كتحديث بالتطبيق) — الوسم يكون v + رقم الإصدار من app.json'
         type: boolean
         default: false
+      play:
+        description: 'ابنِ هم ملف AAB لـ Google Play'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -101,6 +105,19 @@ jobs:
         with:
           name: spir-games-android
           path: apps/mobile/out/*.apk
+          retention-days: 30
+
+      - name: بناء AAB لـ Google Play (اختياري)
+        if: inputs.play
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: رفع الـ AAB
+        if: inputs.play
+        uses: actions/upload-artifact@v7
+        with:
+          name: spir-games-play-aab
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
 
       - name: رقم الإصدار

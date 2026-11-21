@@ -5,26 +5,31 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { GameCard, GameTile } from '../../components/GameCard';
 import { Chip, Halftone, PageHeader, SectionTitle, Text } from '../../components/ui';
 import { formatNumber, greetingFor } from '../../lib/format';
-import { CATEGORIES, dailyChallenge, filterGames, GAMES, type CategoryId } from '../../lib/games';
+import { CATEGORIES, dailyFor, filterGames, visibleGames, type CategoryId } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
+import { DAILY_BONUS, dayKey } from '../../lib/progressCore';
+import { Avatar } from '../../components/Avatar';
 import { cardRadius, fonts, space, themed } from '../../theme';
 
 /** الرئيسية: تحدّي اليوم، الأقسام، الألعاب الجديدة، وشبكة كل الألعاب */
 export default function Home() {
   const s = useStyles();
   const router = useRouter();
-  const { store } = useProgress();
+  const { store, profile } = useProgress();
   const [cat, setCat] = useState<CategoryId | 'all'>('all');
+  // الألعاب حسب عمر اللاعب وبدون اللي خفاها الأهل
+  const mine = useMemo(() => visibleGames(profile), [profile]);
   // آخر الألعاب اللي انلعبت (للصف «كمّل من وين وقفت»)
   const recent = useMemo(
-    () => GAMES.filter((g) => (store.games[g.id]?.lastPlayed ?? 0) > 0).sort((a, b) => (store.games[b.id]?.lastPlayed ?? 0) - (store.games[a.id]?.lastPlayed ?? 0)),
-    [store.games],
+    () => mine.filter((g) => (store.games[g.id]?.lastPlayed ?? 0) > 0).sort((a, b) => (store.games[b.id]?.lastPlayed ?? 0) - (store.games[a.id]?.lastPlayed ?? 0)),
+    [store.games, mine],
   );
-  const fresh = useMemo(() => [...GAMES.filter((g) => g.ready), ...GAMES.filter((g) => !g.ready)].slice(0, 6), []);
-  const games = useMemo(() => filterGames(GAMES, cat), [cat]);
+  const favs = useMemo(() => mine.filter((g) => store.favorites.includes(g.id)), [mine, store.favorites]);
+  const games = useMemo(() => filterGames(mine, cat), [mine, cat]);
   // التاريخ والتحية ينحسبون مرة وحدة عند فتح الشاشة
   const [now] = useState(() => new Date());
-  const challenge = useMemo(() => dailyChallenge(GAMES, now), [now]);
+  const challenge = useMemo(() => dailyFor(profile, now), [profile, now]);
+  const dailyDone = store.dailyDone === dayKey(now);
   const rows = useMemo(() => {
     const out: (typeof games)[] = [];
     for (let i = 0; i < games.length; i += 2) out.push(games.slice(i, i + 2));
@@ -34,12 +39,17 @@ export default function Home() {
   return (
     <View style={s.root}>
       <PageHeader
-        eyebrow={greetingFor(now.getHours())}
+        eyebrow={profile ? `${greetingFor(now.getHours())} يا ${profile.name}` : greetingFor(now.getHours())}
         title="الألعاب"
         actions={
+          <View style={s.headActions}>
+          <Pressable onPress={() => router.push('/who')} accessibilityRole="button" accessibilityLabel="غيّر اللاعب">
+            {profile ? <Avatar index={profile.avatar} size={36} /> : null}
+          </Pressable>
           <View style={s.coin} accessibilityLabel={`عملاتك: ${store.coins}`}>
             <View style={s.coinDot} />
             <Text style={s.coinText}>{formatNumber(store.coins)}</Text>
+          </View>
           </View>
         }
       />
@@ -52,10 +62,10 @@ export default function Home() {
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={s.heroKicker}>تحدّي اليوم</Text>
             <Text style={s.heroTitle} numberOfLines={1}>{challenge.title}</Text>
-            <Text style={s.heroSub} numberOfLines={1}>{`${challenge.tagline} · +50 عملة`}</Text>
+            <Text style={s.heroSub} numberOfLines={1}>{dailyDone ? 'خلصته اليوم ✓ — رجع باچر لتحدّي جديد' : `اربح وخذ +${DAILY_BONUS} عملة إضافية`}</Text>
           </View>
           <View style={s.heroBtn}>
-            <Text style={s.heroBtnText}>العب</Text>
+            <Text style={s.heroBtnText}>{dailyDone ? 'العب' : 'تحدّى'}</Text>
           </View>
         </Pressable>
 
@@ -67,12 +77,26 @@ export default function Home() {
 
         {cat === 'all' ? (
           <>
-            <SectionTitle title={recent.length ? 'كمّل من وين وقفت' : 'جاهزة للعب'} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tiles}>
-              {(recent.length ? recent : fresh).map((g) => (
-                <GameTile key={g.id} game={g} />
-              ))}
-            </ScrollView>
+            {favs.length ? (
+              <>
+                <SectionTitle title="المفضلة" />
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tiles}>
+                  {favs.map((g) => (
+                    <GameTile key={g.id} game={g} />
+                  ))}
+                </ScrollView>
+              </>
+            ) : null}
+            {recent.length ? (
+              <>
+                <SectionTitle title="كمّل من وين وقفت" />
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tiles}>
+                  {recent.map((g) => (
+                    <GameTile key={g.id} game={g} />
+                  ))}
+                </ScrollView>
+              </>
+            ) : null}
           </>
         ) : null}
 
@@ -95,6 +119,7 @@ export default function Home() {
 const useStyles = themed((c) => ({
   root: { flex: 1, backgroundColor: c.bg },
   body: { padding: space.lg, gap: space.lg, paddingBottom: space.xxl },
+  headActions: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   coin: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 999, paddingStart: 6, paddingEnd: 12, paddingVertical: 5 },
   coinDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: c.cta, borderBottomWidth: 2, borderBottomColor: c.accent },
   coinText: { fontFamily: fonts.bold, fontSize: 14, lineHeight: 20, color: c.onHeader },

@@ -1,0 +1,9 @@
+{
+  "id": "breakout",
+  "version": 1,
+  "title": "كاسر الطوب",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

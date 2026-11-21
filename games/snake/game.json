@@ -1,0 +1,9 @@
+{
+  "id": "snake",
+  "version": 1,
+  "title": "الأفعى",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

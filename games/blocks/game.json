@@ -1,0 +1,9 @@
+{
+  "id": "blocks",
+  "version": 1,
+  "title": "بلوكات الشبكة",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

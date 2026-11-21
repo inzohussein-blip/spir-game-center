@@ -1,0 +1,9 @@
+{
+  "id": "connect4",
+  "version": 1,
+  "title": "أربعة بخط",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

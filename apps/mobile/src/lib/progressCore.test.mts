@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { applyResult, badges, doneStages, emptyStore, gameOf, levelOf, parseStore, streak, totalStars } from './progressCore.ts';
+import { activeStore, addPlayTime, addProfile, applyResult, badges, checkPin, DAILY_BONUS, doneStages, emptyFamily, emptyStore, gameOf, hashPin, levelOf, limitReached, parseFamily, parseStore, playedToday, removeProfile, streak, toggleFavorite, totalStars, updateProfile } from './progressCore.ts';
 
 const now = new Date(2026, 10, 20, 10);
 
@@ -60,4 +60,62 @@ test('الأوسمة', () => {
   s = applyResult(s, { gameId: 'xo', level: 'easy', stage: 1, won: true, stars: 3, stageCount: 1, now }).store;
   assert.equal(badges(s)['first-win'], true);
   assert.equal(badges(s).explorer, false);
+});
+
+test('تحدّي اليوم: مكافأة مرة وحدة باليوم', () => {
+  const a = applyResult(emptyStore(), { gameId: 'xo', level: 'easy', stage: 1, won: true, stars: 3, stageCount: 1, now, daily: true });
+  assert.ok(a.dailyBonus);
+  assert.equal(a.coins, 20 + DAILY_BONUS);
+  const b = applyResult(a.store, { gameId: 'xo', level: 'easy', stage: 2, won: true, stars: 3, stageCount: 1, now, daily: true });
+  assert.equal(b.dailyBonus, false);
+  const tomorrow = new Date(2026, 10, 21, 10);
+  assert.ok(applyResult(b.store, { gameId: 'xo', level: 'easy', stage: 3, won: true, stars: 3, stageCount: 1, now: tomorrow, daily: true }).dailyBonus);
+});
+
+test('وقت اللعب والحد اليومي', () => {
+  let s = addPlayTime(emptyStore(), 20, now);
+  s = addPlayTime(s, 15, now);
+  assert.equal(playedToday(s, now), 35);
+  const p = { id: 'a', name: 'زينب', age: 6, avatar: 0, limitMin: 30, hidden: [] };
+  assert.ok(limitReached(p, s, now));
+  assert.ok(!limitReached({ ...p, limitMin: 0 }, s, now));
+  assert.ok(!limitReached(p, s, new Date(2026, 10, 22)));
+});
+
+test('المفضلة', () => {
+  const s = toggleFavorite(emptyStore(), 'snake');
+  assert.deepEqual(s.favorites, ['snake']);
+  assert.deepEqual(toggleFavorite(s, 'snake').favorites, []);
+});
+
+test('ملفات العائلة: إضافة وتعديل وحذف', () => {
+  let f = addProfile(emptyFamily(), { name: '  أحمد  ', age: 3, avatar: 1 }, 'a');
+  f = addProfile(f, { name: 'زينب', age: 7, avatar: 2 }, 'b');
+  assert.equal(f.profiles[0].name, 'أحمد');
+  assert.equal(f.profiles[0].age, 5);
+  assert.equal(f.activeId, 'a');
+  f = updateProfile(f, 'b', { limitMin: 45, age: 80 });
+  assert.equal(f.profiles[1].limitMin, 45);
+  assert.equal(f.profiles[1].age, 50);
+  f = removeProfile(f, 'a');
+  assert.equal(f.activeId, 'b');
+  assert.equal(f.data.a, undefined);
+  assert.deepEqual(activeStore(f), emptyStore());
+});
+
+test('رمز الأهل', () => {
+  const f = { ...emptyFamily(), pinHash: hashPin('1234') };
+  assert.ok(checkPin(f, '1234'));
+  assert.ok(!checkPin(f, '4321'));
+  assert.ok(!checkPin(emptyFamily(), ''));
+});
+
+test('نقل تقدّم النسخة القديمة لأول ملف', () => {
+  const old = applyResult(emptyStore(), { gameId: 'memory', level: 'easy', stage: 1, won: true, stars: 2, stageCount: 12, now }).store;
+  const f = parseFamily(null, JSON.stringify(old));
+  assert.equal(f.profiles.length, 1);
+  assert.equal(activeStore(f).coins, old.coins);
+  assert.equal(parseFamily(null, null).profiles.length, 0);
+  assert.equal(parseFamily(JSON.stringify(f), null).profiles[0].name, 'لاعب 1');
+  assert.equal(parseFamily('{bad', null).profiles.length, 0);
 });

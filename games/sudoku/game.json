@@ -1,0 +1,9 @@
+{
+  "id": "sudoku",
+  "version": 1,
+  "title": "سودوكو",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

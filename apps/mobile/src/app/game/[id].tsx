@@ -6,9 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToast } from '../../components/feedback';
 import { GameArt } from '../../components/GameArt';
 import { Badge, Button, Card, Chip, Empty, Segmented, Text } from '../../components/ui';
-import { CATEGORY_LABEL, gameById } from '../../lib/games';
+import { CATEGORY_LABEL, dailyFor, gameById } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
-import { doneStages, gameOf, LEVEL_LABEL, LEVELS, totalStars, type Level } from '../../lib/progressCore';
+import { DAILY_BONUS, dayKey, doneStages, gameOf, LEVEL_LABEL, LEVELS, limitReached, totalStars, type Level } from '../../lib/progressCore';
 import { cardRadius, fonts, space, themed, useColors } from '../../theme';
 
 /** صفحة اللعبة: الغلاف، الأرقام، شلون تلعب، الصعوبة، المراحل، وزر «العب هسه» ثابت تحت */
@@ -20,17 +20,21 @@ export default function GameDetail() {
   const router = useRouter();
   const toast = useToast();
   const insets = useSafeAreaInsets();
-  const { store } = useProgress();
+  const { store, profile, toggleFav } = useProgress();
   const progress = gameOf(store, String(id));
   const [level, setLevel] = useState<Level>(progress.lastLevel);
   const [players, setPlayers] = useState<'1' | '2'>('1');
   const [picked, setPicked] = useState<number | null>(null);
+  const [now] = useState(() => new Date());
 
   if (!game) return <Empty title="ما لگينا هاي اللعبة" />;
   const back = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const staged = game.levels > 1;
   const next = Math.min(progress.next[level], Math.max(1, game.levels));
   const stage = staged ? (picked && picked <= next ? picked : next) : progress.next[level];
+  const fav = store.favorites.includes(game.id);
+  const isDaily = dailyFor(profile, now).id === game.id && store.dailyDone !== dayKey(now);
+  const blocked = limitReached(profile, store, now);
   const play = () =>
     router.push({ pathname: '/play/[id]', params: { id: game.id, level, stage: String(stage), players: players } });
 
@@ -42,8 +46,16 @@ export default function GameDetail() {
           <Pressable onPress={back} style={s.roundBtn} accessibilityRole="button" accessibilityLabel="رجوع">
             <Ionicons name="chevron-forward" size={22} color="#FFFFFF" />
           </Pressable>
-          <Pressable onPress={() => toast('المفضلة تجي بالتحديث الجاي')} style={s.roundBtn} accessibilityRole="button" accessibilityLabel="أضف للمفضلة">
-            <Ionicons name="heart" size={20} color={c.cta} />
+          <Pressable
+            onPress={() => {
+              toggleFav(game.id);
+              toast(fav ? 'انشالت من المفضلة' : 'انضافت للمفضلة');
+            }}
+            style={s.roundBtn}
+            accessibilityRole="button"
+            accessibilityLabel={fav ? 'شيل من المفضلة' : 'أضف للمفضلة'}
+          >
+            <Ionicons name={fav ? 'heart' : 'heart-outline'} size={20} color={fav ? c.cta : '#FFFFFF'} />
           </Pressable>
         </View>
 
@@ -54,6 +66,7 @@ export default function GameDetail() {
             <Badge label={CATEGORY_LABEL[game.category]} />
             {game.players.includes(2) ? <Badge label="لاعبين" /> : null}
             <Badge label="بدون نت" tone="green" />
+            {isDaily ? <Badge label={`تحدّي اليوم +${DAILY_BONUS}`} tone="yellow" /> : null}
           </View>
 
           <View style={s.stats}>
@@ -126,10 +139,11 @@ export default function GameDetail() {
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}>
+        {blocked ? <Text style={s.limit}>خلص وقت اللعب لليوم — نرجع نلعب باچر</Text> : null}
         <Button
           title={game.ready ? (staged ? `العب المرحلة ${stage}` : 'العب هسه') : 'قريباً'}
           icon={game.ready ? 'play' : 'time-outline'}
-          disabled={!game.ready}
+          disabled={!game.ready || blocked}
           onPress={play}
         />
       </View>
@@ -169,5 +183,6 @@ const useStyles = themed((c) => ({
   stageOn: { backgroundColor: c.cta, borderColor: c.primaryDark, boxShadow: `0 3px 0 ${c.primaryDark}` },
   stageNum: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: c.text },
   stageStars: { fontFamily: fonts.bold, fontSize: 9, lineHeight: 12, color: c.accent },
+  limit: { fontFamily: fonts.semibold, fontSize: 13, color: c.danger, textAlign: 'center', marginBottom: space.sm },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.lg, paddingTop: space.md, backgroundColor: c.bg, borderTopWidth: 1, borderTopColor: c.border },
 }));

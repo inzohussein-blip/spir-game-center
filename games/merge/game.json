@@ -1,0 +1,9 @@
+{
+  "id": "merge",
+  "version": 1,
+  "title": "دمج الأرقام",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "plane",
+  "version": 1,
+  "title": "الطيارة الطايرة",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

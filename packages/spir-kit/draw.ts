@@ -187,3 +187,19 @@ export function catHead(c: CanvasRenderingContext2D, x: number, y: number, r: nu
   c.stroke();
   c.restore();
 }
+
+/** إطار لوحة «ملكي»: أزرق ملكي بظل كحلي حاد تحته */
+export function frame(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r = 18, fill: string = COLORS.royal) {
+  rrect(c, x, y + 4, w, h, r);
+  c.fillStyle = COLORS.navy;
+  c.fill();
+  rrect(c, x, y, w, h, r);
+  c.fillStyle = fill;
+  c.fill();
+}
+
+/** خلفية اللعبة */
+export function clear(c: CanvasRenderingContext2D, w: number, h: number, color: string = COLORS.bg) {
+  c.fillStyle = color;
+  c.fillRect(0, 0, w, h);
+}

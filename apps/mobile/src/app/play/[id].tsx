@@ -7,12 +7,15 @@ import { GameView, type GameViewHandle } from '../../components/GameView';
 import { Button, Empty, Halftone, Text } from '../../components/ui';
 import { GAME_HTML } from '../../games/bundles.generated';
 import type { GameMessage, GameSettings } from '../../lib/bridge';
-import { gameById } from '../../lib/games';
+import { dailyFor, gameById } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
-import { LEVEL_LABEL, LEVELS, type Level } from '../../lib/progressCore';
+import { DAILY_BONUS, LEVEL_LABEL, LEVELS, limitReached, type Level } from '../../lib/progressCore';
 import { fonts, fromLeft, space, themed, useColors, wideSpaces } from '../../theme';
 
-type EndState = { won: boolean; title: string; subtitle?: string; stars: number; coins: number; newBest: boolean; firstWin: boolean; hasNext: boolean };
+type EndState = { won: boolean; title: string; subtitle?: string; stars: number; coins: number; newBest: boolean; firstWin: boolean; dailyBonus: boolean; hasNext: boolean };
+
+/** كل كم ثانية نحسب وقت اللعب */
+const TICK_S = 20;
 
 /**
  * المشغّل الموحّد: شريط علوي (إيقاف، المرحلة، النتيجة) فوق اللعبة،
@@ -26,7 +29,7 @@ export default function Play() {
   const c = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { store, record, setSound } = useProgress();
+  const { store, profile, record, setSound, addMinutes } = useProgress();
   const viewRef = useRef<GameViewHandle>(null);
 
   const level: Level = LEVELS.includes(params.level as Level) ? (params.level as Level) : 'easy';
@@ -66,7 +69,8 @@ export default function Play() {
           const won = m.type === 'complete';
           const stars = won ? m.stars : 0;
           const st = settingsRef.current.stage;
-          const out = record({ gameId: game.id, level, stage: st, won, stars, stageCount: game.levels, now: new Date() });
+          const now = new Date();
+          const out = record({ gameId: game.id, level, stage: st, won, stars, stageCount: game.levels, now, daily: dailyFor(profile, now).id === game.id });
           setEnd({
             won,
             title: m.title ?? (won ? 'عاشت إيدك!' : 'خلصت الجولة'),
@@ -75,12 +79,13 @@ export default function Play() {
             coins: out.coins,
             newBest: out.newBest,
             firstWin: out.firstWin,
+            dailyBonus: out.dailyBonus,
             hasNext: won && (game.levels <= 1 || st < game.levels),
           });
         }
       }
     },
-    [game, level, record],
+    [game, level, record, profile],
   );
 
   const pause = useCallback(() => {
@@ -112,7 +117,32 @@ export default function Play() {
     return () => sub.remove();
   }, [paused, end, pause]);
 
+  // وقت اللعب: نحسبه بس واللعبة شغالة (مو متوقفة ولا بنافذة النهاية)
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    if (paused || end) return;
+    const t = setInterval(() => {
+      if (AppState.currentState !== 'active') return;
+      addMinutes(TICK_S / 60);
+      setClock(Date.now());
+    }, TICK_S * 1000);
+    return () => clearInterval(t);
+  }, [paused, end, addMinutes]);
+  // إذا خلص الوقت أثناء اللعب نخليه يكمّل الجولة، ونمنع الجولة الجاية بس
+  const blocked = limitReached(profile, store, new Date(clock));
+  const [blockedAtStart] = useState(blocked);
+
   if (!game || !html) return <Empty title="هاي اللعبة بعدها ما جاهزة" />;
+  if (blockedAtStart) {
+    return (
+      <View style={[s.root, s.limitBox, { paddingTop: insets.top + space.xxl }]}>
+        <Ionicons name="moon" size={56} color={c.primary} />
+        <Text style={s.sheetTitle}>{wideSpaces('كافي لليوم!')}</Text>
+        <Text style={s.limitText}>{`خلص وقت اللعب اللي حطوه الأهل${profile ? ` لـ ${profile.name}` : ''}. نرجع نلعب باچر.`}</Text>
+        <Button title="رجوع" icon="arrow-forward" onPress={exit} />
+      </View>
+    );
+  }
 
   const toggleSound = () => {
     const on = !store.sound;
@@ -174,15 +204,18 @@ export default function Play() {
             <View style={s.chips}>
               {end.newBest ? <Text style={[s.chip, s.chipYellow]}>رقم قياسي جديد</Text> : null}
               {end.firstWin ? <Text style={[s.chip, s.chipYellow]}>وسام: أول فوز</Text> : null}
+              {end.dailyBonus ? <Text style={[s.chip, s.chipYellow]}>{`تحدّي اليوم +${DAILY_BONUS}`}</Text> : null}
               <Text style={s.chip}>{`+${end.coins} عملة`}</Text>
             </View>
-            {end.hasNext ? (
+            {blocked ? (
+              <Text style={s.limitText}>خلص وقت اللعب لليوم — نرجع باچر</Text>
+            ) : end.hasNext ? (
               <Button title={game.levels <= 1 ? 'جولة ثانية' : 'المرحلة الجاية'} icon="arrow-back" onPress={() => start(stage + 1)} />
             ) : (
               <Button title={end.won ? 'العب مرة ثانية' : 'حاول مرة ثانية'} icon="refresh" onPress={() => start(stage)} />
             )}
             <View style={{ flexDirection: 'row', gap: space.sm }}>
-              {end.hasNext ? <Button title="أعد" variant="outline" onPress={() => start(stage)} style={{ flex: 1 }} /> : null}
+              {end.hasNext && !blocked ? <Button title="أعد" variant="outline" onPress={() => start(stage)} style={{ flex: 1 }} /> : null}
               <Button title="القائمة" variant="outline" onPress={exit} style={{ flex: 1 }} />
             </View>
           </View>
@@ -211,5 +244,7 @@ const useStyles = themed((c) => ({
   stars: { flexDirection: 'row', justifyContent: 'center', gap: 6, paddingTop: space.sm },
   chips: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: space.sm },
   chip: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 18, color: c.primary, backgroundColor: c.primarySoft, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
+  limitBox: { alignItems: 'center', gap: space.lg, paddingHorizontal: space.xl },
+  limitText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 24, color: c.muted, textAlign: 'center' },
   chipYellow: { color: c.warnText, backgroundColor: c.warnSoft },
 }));

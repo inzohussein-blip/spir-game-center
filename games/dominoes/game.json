@@ -1,0 +1,9 @@
+{
+  "id": "dominoes",
+  "version": 1,
+  "title": "دومينو",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

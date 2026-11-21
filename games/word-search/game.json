@@ -1,0 +1,9 @@
+{
+  "id": "word-search",
+  "version": 1,
+  "title": "البحث عن الكلمات",
+  "orientation": "portrait",
+  "offline": true,
+  "license": "MIT",
+  "source": "original"
+}

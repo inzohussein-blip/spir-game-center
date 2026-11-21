@@ -1,6 +1,6 @@
 import { ReadexPro_400Regular, ReadexPro_600SemiBold, ReadexPro_700Bold, useFonts } from '@expo-google-fonts/readex-pro';
 import { ReemKufi_700Bold } from '@expo-google-fonts/reem-kufi';
-import { Stack, type ErrorBoundaryProps } from 'expo-router';
+import { Stack, useRouter, useSegments, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { I18nManager, Platform, Pressable, View } from 'react-native';
@@ -8,7 +8,7 @@ import { BrandSplash } from '../components/BrandSplash';
 import { ToastProvider } from '../components/feedback';
 import { StackHeader } from '../components/StackHeader';
 import { Text } from '../components/ui';
-import { ProgressProvider } from '../lib/progress';
+import { ProgressProvider, useProgress } from '../lib/progress';
 import { fonts, headerText, ThemeProvider, useTheme } from '../theme';
 
 // العربية: اتجاه من اليمين لليسار
@@ -37,6 +37,15 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 
 function AppStack() {
   const { colors: c } = useTheme();
+  const { ready, family, chosen } = useProgress();
+  const segments = useSegments();
+  const router = useRouter();
+  // أول مرة (ماكو ملفات) أو أكثر من ملف: نسأل «منو يلعب؟» قبل الألعاب
+  useEffect(() => {
+    if (!ready) return;
+    const first = segments[0] as string | undefined;
+    if ((!family.profiles.length || !chosen) && first !== 'who' && first !== 'parents') router.replace('/who');
+  }, [ready, family.profiles.length, chosen, segments, router]);
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') document.body.style.backgroundColor = c.bg;
   }, [c.bg]);
@@ -56,6 +65,8 @@ function AppStack() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="game/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="who" options={{ headerShown: false }} />
+        <Stack.Screen name="parents" options={{ title: 'وضع الأهل' }} />
         <Stack.Screen name="play/[id]" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
       </Stack>
     </>
