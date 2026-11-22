@@ -8,6 +8,7 @@ export type CategoryId = 'brain' | 'puzzle' | 'arcade' | 'family' | 'words';
 
 export type GameIcon =
   | 'cat'
+  | 'run-fast'
   | 'numeric-2-box-multiple'
   | 'view-grid-plus'
   | 'snake'
@@ -64,6 +65,7 @@ export const CATEGORY_LABEL: Record<CategoryId, string> = {
 const C = { royal: '#1A23C9', orange: '#E8590C', green: '#1C8B4A', pink: '#E0398B', teal: '#0F9B8E', violet: '#6B3FD6', navy: '#0B1033', red: '#D92D20' };
 
 export const GAMES: Game[] = [
+  { id: 'spir-jump', title: 'قفزة سبير', tagline: 'نط وجمّع السمك للعلم', howTo: 'امشِ بالأسهم واضغط القفزة. اقفز فوق الفراغات، دوس على المخلوقات من فوق، والفطر الأحمر ينطّك عالي. جمّع 3 نجوم ووصل للعلم.', category: 'arcade', minAge: 5, color: C.orange, icon: 'run-fast', players: [1], levels: 10, ready: false, featured: true },
   { id: 'trap-cat', title: 'حاصر البزون', tagline: 'نبّت شجيرات وحاصر ميشو', howTo: 'كل ضغطة تنبّت شجيرة تسد الطريق. «ميشو» يتحرك خطوة بعد كل ضغطة — احصره قبل ما يوصل للحافة.', category: 'brain', minAge: 5, color: C.pink, icon: 'cat', players: [1], levels: 30, ready: false, featured: true },
   { id: 'merge', title: 'دمج المخلوقات', tagline: 'ادمج السبيرات حتى يكبرون', howTo: 'اسحب للأربع اتجاهات. كل مخلوقين متشابهين يندمجون ويصيرون مخلوق أكبر. الهدف: «رمّانة» بالسهل، «نجمة» بالمتوسط، و«الملك» بالصعب.', category: 'puzzle', minAge: 9, color: C.orange, icon: 'numeric-2-box-multiple', players: [1], levels: 1, ready: false, featured: true },
   { id: 'blocks', title: 'بلوكات الحلوى', tagline: 'رتّب الحلوى وفجّر الصفوف', howTo: 'اسحب قطع الحلوى للوحة. كل صف أو عمود يتعبّى ينفجر ويعطيك نقاط، وأكثر من خط سوا يعطي كومبو.', category: 'puzzle', minAge: 7, color: C.violet, icon: 'view-grid-plus', players: [1], levels: 1, ready: false, featured: true },

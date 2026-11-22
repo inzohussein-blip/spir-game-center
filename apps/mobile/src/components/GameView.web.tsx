@@ -8,7 +8,8 @@ export type GameViewHandle = { send: (msg: HostMessage) => void };
  * الويب (الآيفون): اللعبة ملف HTML منفصل بالموقع، يفتح داخل iframe معزول
  * (sandbox بدون نفس الأصل) — ينحمّل بس لما تنفتح اللعبة.
  */
-export function GameView({ asset, onMessage, ref }: { asset: number; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
+/** asset: لعبة مبنية ويّا الموقع — أو uri: رابط لعبة كبيرة (مجلد packs) */
+export function GameView({ asset, uri, onMessage, ref }: { asset?: number; uri?: string; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const handlerRef = useRef(onMessage);
   useEffect(() => {
@@ -30,7 +31,10 @@ export function GameView({ asset, onMessage, ref }: { asset: number; onMessage: 
   }, []);
 
   // رابط الملف بالموقع: Expo يرجّعه بدون الامتداد (.html) فنضيفه
-  const a = Asset.fromModule(asset);
-  const src = /\.html(\?|$)/.test(a.uri) ? a.uri : `${a.uri}.${a.type || 'html'}`;
+  let src = uri ?? '';
+  if (!uri && asset !== undefined) {
+    const a = Asset.fromModule(asset);
+    src = /\.html(\?|$)/.test(a.uri) ? a.uri : `${a.uri}.${a.type || 'html'}`;
+  }
   return <iframe ref={frameRef} title="game" src={src} sandbox="allow-scripts" style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block', backgroundColor: '#62C6FF' }} />;
 }

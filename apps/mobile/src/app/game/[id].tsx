@@ -1,13 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToast } from '../../components/feedback';
 import { GameArt } from '../../components/GameArt';
 import { Badge, Button, Card, Chip, Empty, Segmented, Text } from '../../components/ui';
 import { CATEGORY_LABEL, dailyFor, gameById } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
+import { usePack } from '../../lib/packs';
+import { GAME_META } from '../../games/ready.generated';
 import { DAILY_BONUS, dayKey, doneStages, gameOf, LEVEL_LABEL, LEVELS, limitReached, totalStars, type Level } from '../../lib/progressCore';
 import { cardRadius, fonts, space, themed, useColors } from '../../theme';
 
@@ -26,6 +28,7 @@ export default function GameDetail() {
   const [players, setPlayers] = useState<'1' | '2'>('1');
   const [picked, setPicked] = useState<number | null>(null);
   const [now] = useState(() => new Date());
+  const pack = usePack(String(id));
 
   if (!game) return <Empty title="ما لگينا هاي اللعبة" />;
   const back = () => (router.canGoBack() ? router.back() : router.replace('/'));
@@ -79,6 +82,24 @@ export default function GameDetail() {
             <Text style={s.howTitle}>شلون تلعب؟</Text>
             <Text style={s.howText}>{game.howTo}</Text>
           </Card>
+
+          {pack.pack ? (
+            <Card style={{ gap: space.sm }}>
+              <Text style={s.howTitle}>{pack.status === 'ready' ? 'اللعبة نازلة على جهازك' : 'هاي اللعبة تنزل مرة وحدة'}</Text>
+              <Text style={s.howText}>{`حجمها ${Math.round(pack.pack.bytes / 1024 / 1024)} ميغا — بعد التنزيل تشتغل بدون نت. (محرك ${pack.pack.engine === 'godot' ? 'Godot' : pack.pack.engine})`}</Text>
+              {pack.status === 'downloading' ? (
+                <View style={s.dlTrack}>
+                  <View style={[s.dlFill, { width: `${Math.max(3, pack.progress * 100)}%` }]} />
+                </View>
+              ) : null}
+              {pack.status === 'error' ? <Text style={{ color: c.danger }}>{pack.error}</Text> : null}
+              {pack.status === 'none' || pack.status === 'error' ? <Button title="نزّل اللعبة" icon="cloud-download-outline" onPress={() => void pack.download()} /> : null}
+              {pack.status === 'downloading' ? <Text style={s.howText}>{`جاري التنزيل… ${Math.round(pack.progress * 100)}%`}</Text> : null}
+              {pack.status === 'ready' && Platform.OS !== 'web' ? <Button title="امسح من الجهاز" icon="trash-outline" variant="ghost" onPress={() => void pack.remove()} /> : null}
+            </Card>
+          ) : null}
+
+          {GAME_META[game.id]?.credits ? <Text style={s.credits}>{GAME_META[game.id]?.credits}</Text> : null}
 
           {game.players.includes(2) ? (
             <Segmented
@@ -143,7 +164,7 @@ export default function GameDetail() {
         <Button
           title={game.ready ? (staged ? `العب المرحلة ${stage}` : 'العب هسه') : 'قريباً'}
           icon={game.ready ? 'play' : 'time-outline'}
-          disabled={!game.ready || blocked}
+          disabled={!game.ready || blocked || (!!pack.pack && pack.status !== 'ready')}
           onPress={play}
         />
       </View>
@@ -184,5 +205,8 @@ const useStyles = themed((c) => ({
   stageNum: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: c.text },
   stageStars: { fontFamily: fonts.bold, fontSize: 9, lineHeight: 12, color: c.accent },
   limit: { fontFamily: fonts.semibold, fontSize: 13, color: c.danger, textAlign: 'center', marginBottom: space.sm },
+  dlTrack: { height: 10, borderRadius: 6, backgroundColor: c.cardAlt, overflow: 'hidden' },
+  dlFill: { height: '100%', backgroundColor: c.cta, borderRadius: 6 },
+  credits: { fontFamily: fonts.regular, fontSize: 11, lineHeight: 18, color: c.muted, textAlign: 'center' },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.lg, paddingTop: space.md, backgroundColor: c.bg, borderTopWidth: 1, borderTopColor: c.border },
 }));

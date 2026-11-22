@@ -1,0 +1,11 @@
+{
+  "id": "spir-jump",
+  "version": 1,
+  "title": "قفزة سبير",
+  "orientation": "portrait",
+  "offline": true,
+  "engine": "phaser",
+  "license": "MIT",
+  "assets": [{ "what": "الرسوم والأصوات", "license": "MIT", "by": "Spir Games" }, { "what": "محرك Phaser", "license": "MIT", "by": "Phaser Studio" }],
+  "source": "original"
+}

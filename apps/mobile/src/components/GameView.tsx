@@ -15,16 +15,19 @@ export type GameViewHandle = { send: (msg: HostMessage) => void };
  * الملف ينسخ لذاكرة الجهاز أول مرة وبعدها ينفتح منها مباشرة.
  * ممنوع أي تنقل لموقع خارجي أو فتح نوافذ.
  */
-export function GameView({ asset, onMessage, ref }: { asset: number; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
+/** asset: لعبة داخل التطبيق (require) — أو uri: ملف لعبة منزّلة على الجهاز */
+export function GameView({ asset, uri: fileUri, onMessage, ref }: { asset?: number; uri?: string; onMessage: (m: GameMessage) => void; ref?: Ref<GameViewHandle> }) {
   const webRef = useRef<WebViewInstance>(null);
-  const [uri, setUri] = useState<string | null>(null);
+  const [assetUri, setAssetUri] = useState<string | null>(null);
+  const uri = fileUri ?? assetUri;
 
   useEffect(() => {
+    if (asset === undefined) return;
     let alive = true;
     const a = Asset.fromModule(asset);
     a.downloadAsync()
-      .then(() => alive && setUri(a.localUri ?? a.uri))
-      .catch(() => alive && setUri(a.uri));
+      .then(() => alive && setAssetUri(a.localUri ?? a.uri))
+      .catch(() => alive && setAssetUri(a.uri));
     return () => {
       alive = false;
     };

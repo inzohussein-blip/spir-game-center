@@ -6,3 +6,4 @@ export * from './ui.ts';
 export * from './buildings.ts';
 export * from './creatures.ts';
 export * from './furniture.ts';
+export * from './platformer.ts';

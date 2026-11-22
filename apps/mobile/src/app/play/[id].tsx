@@ -7,6 +7,7 @@ import { GameView, type GameViewHandle } from '../../components/GameView';
 import { Button, Empty, Halftone, Text } from '../../components/ui';
 import { GAME_ASSET } from '../../games/bundles.generated';
 import { STICKERS } from '../../games/catalog.generated';
+import { usePack } from '../../lib/packs';
 import type { GameMessage, GameSettings } from '../../lib/bridge';
 import { dailyFor, gameById } from '../../lib/games';
 import { useProgress } from '../../lib/progress';
@@ -26,6 +27,8 @@ export default function Play() {
   const params = useLocalSearchParams<{ id: string; level?: string; stage?: string; players?: string }>();
   const game = gameById(String(params.id));
   const asset = game ? GAME_ASSET[game.id] : undefined;
+  // ألعاب المحركات الثانية تنزل عند الطلب (ملف على الجهاز)
+  const pack = usePack(String(params.id));
   const s = useStyles();
   const c = useColors();
   const router = useRouter();
@@ -134,7 +137,7 @@ export default function Play() {
   const blocked = limitReached(profile, store, new Date(clock));
   const [blockedAtStart] = useState(blocked);
 
-  if (!game || !asset) return <Empty title="هاي اللعبة بعدها ما جاهزة" />;
+  if (!game || (!asset && !pack.pack)) return <Empty title="هاي اللعبة بعدها ما جاهزة" />;
   if (blockedAtStart) {
     return (
       <View style={[s.root, s.limitBox, { paddingTop: insets.top + space.xxl }]}>
@@ -169,7 +172,13 @@ export default function Play() {
       </View>
 
       <View style={{ flex: 1 }}>
-        <GameView ref={viewRef} asset={asset} onMessage={onMessage} />
+        {asset !== undefined ? (
+          <GameView ref={viewRef} asset={asset} onMessage={onMessage} />
+        ) : pack.uri ? (
+          <GameView ref={viewRef} uri={pack.uri} onMessage={onMessage} />
+        ) : (
+          <Empty title="نزّل اللعبة أول من صفحتها" />
+        )}
       </View>
 
       {paused && !end ? (

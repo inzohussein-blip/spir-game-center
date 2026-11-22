@@ -164,3 +164,26 @@ export function catFace(color: keyof typeof CAT_COLORS | string, eye: EyeKind = 
     ),
   };
 }
+
+/** بزون كامل برسمة وحدة (جسم + ذيل + وجه، ووشاح اختياري) — 130×190، القدمين تحت بالنص */
+export function catFull(color: keyof typeof CAT_COLORS | string, eye: EyeKind = 'open', mouth: MouthKind = 'smile', withScarf = false) {
+  const inner = (a: { svg: string }) => a.svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  const ear = inner(catEar(color));
+  return {
+    w: 130,
+    h: 190,
+    svg: svg(
+      130,
+      190,
+      `<g transform="translate(78 78)">${inner(catTail(color))}</g>
+       <g transform="translate(5 88)">${inner(catBody(color))}</g>
+       ${withScarf ? `<g transform="translate(17 92)">${inner(scarf())}</g>` : ''}
+       <g transform="translate(8 4) rotate(-12 25 52)">${ear}</g>
+       <g transform="translate(122 4) scale(-1 1) rotate(-12 25 52)">${ear}</g>
+       <g transform="translate(3 18)">${inner(catHead(color))}</g>
+       <g transform="translate(30 52)">${inner(catEye(eye))}</g>
+       <g transform="translate(68 52)">${inner(catEye(eye))}</g>
+       <g transform="translate(37 86)">${inner(catMouth(mouth))}</g>`,
+    ),
+  };
+}
