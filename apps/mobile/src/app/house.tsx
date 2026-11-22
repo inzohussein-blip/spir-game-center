@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
-import { SceneView } from '../../components/SceneView';
-import type { GameMessage } from '../../lib/bridge';
-import { useProgress } from '../../lib/progress';
+import { SceneView } from '../components/SceneView';
+import type { GameMessage } from '../lib/bridge';
+import { useProgress } from '../lib/progress';
 
 /** «بيت سبير» والألبوم (مشهد Pixi): الشراء والقبعات يتحققون هنا بالتطبيق */
 export default function House() {

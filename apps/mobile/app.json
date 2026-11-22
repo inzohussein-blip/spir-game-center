@@ -3,7 +3,7 @@
     "name": "Spir Games",
     "slug": "spir-games",
     "scheme": "spirgames",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -15,7 +15,7 @@
       "package": "com.spirgames.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#4FB8FF",
+        "backgroundColor": "#1A23C9",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -29,8 +29,8 @@
       "shortName": "Spir Games",
       "lang": "ar",
       "dir": "rtl",
-      "themeColor": "#4FB8FF",
-      "backgroundColor": "#FFF7EA",
+      "themeColor": "#1A23C9",
+      "backgroundColor": "#EEF0FF",
       "display": "standalone"
     },
     "plugins": [
@@ -49,9 +49,9 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 180,
           "resizeMode": "contain",
-          "backgroundColor": "#4FB8FF",
+          "backgroundColor": "#1A23C9",
           "dark": {
-            "backgroundColor": "#4FB8FF"
+            "backgroundColor": "#1A23C9"
           }
         }
       ],

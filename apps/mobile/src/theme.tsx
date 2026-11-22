@@ -64,11 +64,11 @@ export type Palette = {
   heroSky: string;
 };
 
-/** الثيمات: «سبير» (الافتراضي — هوية عالم سبير)، والثيمات القديمة: الأزرق، الأسود، برشلونة، ريال مدريد */
+/** الثيمات: الأزرق (ملكي — الافتراضي)، سبير، الأسود، برشلونة، ريال مدريد */
 export type ThemeName = 'spir' | 'royal' | 'black' | 'barca' | 'madrid';
 export const THEMES: { id: ThemeName; label: string; swatch: [string, string] }[] = [
-  { id: 'spir', label: 'سبير', swatch: ['#4FB8FF', '#FFC93C'] },
   { id: 'royal', label: 'الأزرق', swatch: ['#1A23C9', '#FFD60A'] },
+  { id: 'spir', label: 'سبير', swatch: ['#4FB8FF', '#FFC93C'] },
   { id: 'black', label: 'الأسود', swatch: ['#121D33', '#FFCC03'] },
   { id: 'barca', label: 'برشلونة', swatch: ['#004D98', '#A50044'] },
   { id: 'madrid', label: 'ريال مدريد', swatch: ['#FFFFFF', '#FEBE10'] },
@@ -437,11 +437,11 @@ export const padLeft = (n: number) => (Platform.OS === 'web' ? { paddingLeft: n 
 export const ctaShadow = (c: Palette) => `0 3px 0 ${c.primaryDark}`;
 
 export const fonts = {
-  regular: 'BalooBhaijaan2_500Medium',
-  semibold: 'BalooBhaijaan2_600SemiBold',
-  bold: 'BalooBhaijaan2_800ExtraBold',
-  /** خط العناوين الكبيرة (لالي زار — مرح ومناسب للأطفال) */
-  display: 'Lalezar_400Regular',
+  regular: 'ReadexPro_400Regular',
+  semibold: 'ReadexPro_600SemiBold',
+  bold: 'ReadexPro_700Bold',
+  /** خط العناوين والأرقام الكبيرة (كوفي) */
+  display: 'ReemKufi_700Bold',
 };
 
 /** المسافات: كلها من مضاعفات 4 */
@@ -474,13 +474,13 @@ interface ThemeState {
 
 const KEY = 'spir-games-theme';
 const THEME_KEY = 'spir-games-theme-name';
-const ThemeContext = createContext<ThemeState>({ mode: 'light', scheme: 'light', colors: spirLight, setMode: () => {}, theme: 'spir', setTheme: () => {} });
+const ThemeContext = createContext<ThemeState>({ mode: 'light', scheme: 'light', colors: light, setMode: () => {}, theme: 'royal', setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
   // الافتراضي فاتح؛ اللاعب يكدر يختار «حسب الجهاز» أو «داكن» من حسابي
   const [mode, setMode] = useState<ThemeMode>('light');
-  const [theme, setTheme] = useState<ThemeName>('spir');
+  const [theme, setTheme] = useState<ThemeName>('royal');
 
   useEffect(() => {
     AsyncStorage.getItem(KEY)
