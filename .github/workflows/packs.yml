@@ -1,0 +1,77 @@
+# حزم الألعاب الكبيرة (Godot): تصدير ← ملف HTML واحد لكل لعبة ← إصدار GitHub ثابت اسمه «packs».
+# التطبيق ينزّل الحزمة من هناك عند الطلب، ونسخة الويب تاخذها وقت البناء.
+name: Game Packs (Godot)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['games/*/godot/**', 'games/*/shell.ts', 'apps/mobile/scripts/godot-pack.mjs', '.github/workflows/packs.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: packs
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: 4.4.1
+
+jobs:
+  packs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      - run: npm ci
+        working-directory: apps/mobile
+
+      - name: Godot ${{ env.GODOT_VERSION }} + قوالب الويب
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
+          curl -fsSL -o "$RUNNER_TEMP/godot.zip" "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          curl -fsSL -o "$RUNNER_TEMP/tpl.tpz" "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$dest"
+          unzip -j -o "$RUNNER_TEMP/tpl.tpz" templates/web_nothreads_release.zip templates/version.txt -d "$dest"
+          rm "$RUNNER_TEMP/tpl.tpz" "$RUNNER_TEMP/godot.zip"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+
+      - name: بناء الحزم
+        working-directory: apps/mobile
+        run: |
+          for d in ../../games/*/godot; do
+            node scripts/godot-pack.mjs "$(basename "$(dirname "$d")")"
+          done
+          ls -la ../../packs
+
+      - name: فحص الحجم ويّا game.json
+        run: |
+          # الحجم المكتوب بالمستودع لازم يقارب الحزمة المنشورة (التطبيق يتأكد من التنزيل بيه)
+          git diff --stat -- 'games/*/game.json' || true
+          node -e '
+            const fs=require("fs");
+            for (const id of fs.readdirSync("games")) {
+              const p=`games/${id}/game.json`; if(!fs.existsSync(p)) continue;
+              const m=JSON.parse(fs.readFileSync(p,"utf8")); if(m.pack?.type!=="download") continue;
+              const real=fs.statSync(`packs/${m.pack.file}`).size;
+              const committed=JSON.parse(require("child_process").execSync(`git show HEAD:${p}`)).pack.bytes;
+              console.log(id, "committed", committed, "built", real);
+              if (Math.abs(real-committed)/real > 0.02) { console.error(`::error::${id}: الحجم تغيّر — شغّل godot-pack.mjs محلياً وارفع game.json`); process.exit(1); }
+            }'
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: packs
+          name: حزم الألعاب (Godot)
+          body: ملفات الألعاب اللي تنزل عند الطلب داخل تطبيق Spir Games. كل ملف لعبة كاملة تشتغل بدون نت.
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          files: packs/*.html

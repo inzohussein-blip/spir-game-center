@@ -8,5 +8,6 @@ export const COVERS: Record<string, ImageSourcePropType> = {
   merge: require('../../assets/covers/merge.png'),
   blocks: require('../../assets/covers/blocks.png'),
   'spir-jump': require('../../assets/covers/spir-jump.png'),
+  dodge: require('../../assets/covers/dodge.png'),
   connect4: require('../../assets/covers/connect4.png'),
 };

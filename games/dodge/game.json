@@ -1,0 +1,33 @@
+{
+  "id": "dodge",
+  "version": 1,
+  "title": "تجنّب الوحوش",
+  "orientation": "portrait",
+  "offline": true,
+  "engine": "godot",
+  "license": "MIT",
+  "assets": [
+    {
+      "what": "الرسوم والأصوات",
+      "license": "MIT",
+      "by": "Spir Games"
+    },
+    {
+      "what": "خط بالو بهيجان 2",
+      "license": "OFL-1.1",
+      "by": "Ek Type"
+    },
+    {
+      "what": "محرك Godot",
+      "license": "MIT",
+      "by": "Godot Engine contributors"
+    }
+  ],
+  "credits": "مبنية بمحرك Godot (MIT) على فكرة «Dodge the Creeps» من مشاريع Godot الرسمية.",
+  "source": "https://github.com/godotengine/godot-demo-projects/tree/master/2d/dodge_the_creeps",
+  "pack": {
+    "type": "download",
+    "file": "dodge-1.html",
+    "bytes": 13319521
+  }
+}
