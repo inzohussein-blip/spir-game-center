@@ -20,7 +20,7 @@ function PackRow({ id, onChange }: { id: string; onChange: () => void }) {
   const status = { ready: 'نازلة على جهازك', none: 'مو نازلة', downloading: `جاري التنزيل… ${Math.round(p.progress * 100)}%`, error: p.error ?? 'تعذّر التنزيل' }[p.status];
   return (
     <Card style={s.row}>
-      <GameArt game={game} size={56} showAge={false} />
+      <GameArt game={game} size={30} showAge={false} style={s.art} />
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={s.title}>{game.title}</Text>
         <Text style={[s.sub, p.status === 'error' && { color: c.danger }]}>{`${mb(p.pack.bytes)} · ${status}`}</Text>
@@ -30,7 +30,7 @@ function PackRow({ id, onChange }: { id: string; onChange: () => void }) {
           </View>
         ) : null}
       </View>
-      {p.status === 'ready' ? (
+      {Platform.OS === 'web' ? null : p.status === 'ready' ? (
         <Button
           title="امسح"
           icon="trash-outline"
@@ -96,6 +96,7 @@ const useStyles = themed((c) => ({
   body: { padding: space.lg, gap: space.md },
   lead: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 22, color: c.muted },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  art: { width: 76, height: 50, borderRadius: 10 },
   title: { fontFamily: fonts.bold, fontSize: 16, color: c.text },
   sub: { fontFamily: fonts.regular, fontSize: 13, color: c.muted },
   track: { height: 8, borderRadius: 5, backgroundColor: c.cardAlt, overflow: 'hidden', marginTop: 4 },
