@@ -1,6 +1,6 @@
 {
   "id": "dodge",
-  "version": 1,
+  "version": 2,
   "title": "تجنّب الوحوش",
   "orientation": "portrait",
   "offline": true,
@@ -27,7 +27,7 @@
   "source": "https://github.com/godotengine/godot-demo-projects/tree/master/2d/dodge_the_creeps",
   "pack": {
     "type": "download",
-    "file": "dodge-1.html",
-    "bytes": 13319517
+    "file": "dodge-2.html",
+    "bytes": 8429372
   }
 }

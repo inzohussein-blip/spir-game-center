@@ -18,7 +18,7 @@ concurrency:
 env:
   GODOT_VERSION: 4.4.1
   # المحرك المصغّر (workflow «Godot Engine») — مجرّب ويّا كل الألعاب. إذا ما موجود نستعمل القالب الرسمي.
-  GODOT_TEMPLATE_ASSET: godot-web-2d-4.4.1.zip
+  GODOT_TEMPLATE_ASSET: godot-web-2d-4.4.1-b.zip
 
 jobs:
   packs:
