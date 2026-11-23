@@ -70,4 +70,4 @@
 - **بدون eval:** `JavaScriptBridge.eval` ممنوع بسياسة الأمان، فالجسر يستدعي دوال الصفحة مباشرة (`get_interface("window")`).
 - **صوت Godot مطفي (Dummy):** ملفات worklet ما تنحمّل من blob بأصل `file://`، والأصوات كلها من `spir-engine/audio` بالصفحة.
 - **الحجم:** wasm المحرك 44 ميغا ← gzip داخل الصفحة (base64) ← 12.7 ميغا، ويتفك بالذاكرة بـ `DecompressionStream`. تحميل اللعبة ≈ ثانيتين.
-- **تحديث لعبة Godot:** عدّل المشروع ← `GODOT=… npm run pack:godot dodge` (يحدّث `pack.bytes`) ← ارفع ← شغّل workflow «Game Packs». إذا تغيّر شي كبير زيد `version` بـ game.json حتى الأجهزة تنزّل النسخة الجديدة.
+- **تحديث لعبة Godot:** (صار التفصيل بـ docs/PLAN-v4.md) عدّل المشروع ← `GODOT=… npm run pack:godot dodge` (يحدّث `pack.bytes`) ← ارفع ← شغّل workflow «Game Packs». إذا تغيّر شي كبير زيد `version` بـ game.json حتى الأجهزة تنزّل النسخة الجديدة.
