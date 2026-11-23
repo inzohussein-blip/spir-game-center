@@ -5,6 +5,13 @@ name: Godot Engine (2D web template)
 
 on:
   workflow_dispatch:
+    inputs:
+      suffix:
+        description: 'لاحقة اسم الملف (تجربة جديدة ما تمسح المجرّبة) — مثلاً b'
+        default: ''
+      extra:
+        description: 'خيارات scons إضافية'
+        default: ''
 
 permissions:
   contents: write
@@ -37,6 +44,8 @@ jobs:
 
       - name: بناء القالب
         working-directory: godot
+        env:
+          SUFFIX: ${{ inputs.suffix }}
         # نشيل 3D والوحدات اللي ألعابنا ما تحتاجها، ونخلي: GDScript، النص العربي (text_server_adv + freetype)، فيزياء 2D، PNG/WebP
         run: |
           scons platform=web target=template_release threads=no production=yes optimize=size \
@@ -51,10 +60,10 @@ jobs:
             module_vorbis_enabled=no module_webrtc_enabled=no module_websocket_enabled=no module_webxr_enabled=no \
             module_xatlas_unwrap_enabled=no module_lightmapper_rd_enabled=no module_interactive_music_enabled=no \
             module_jolt_physics_enabled=no module_godot_physics_3d_enabled=no module_cvtt_enabled=no \
-            module_astcenc_enabled=no module_navigation_enabled=no
+            module_astcenc_enabled=no module_navigation_enabled=no ${{ inputs.extra }}
           ls -la bin
           unzip -l bin/godot.web.template_release.wasm32.nothreads.zip
-          cp bin/godot.web.template_release.wasm32.nothreads.zip "$RUNNER_WORKSPACE/godot-web-2d-${GODOT_VERSION}.zip"
+          cp bin/godot.web.template_release.wasm32.nothreads.zip "$RUNNER_WORKSPACE/godot-web-2d-${GODOT_VERSION}${SUFFIX:+-$SUFFIX}.zip"
 
       - uses: softprops/action-gh-release@v3
         with:
@@ -62,4 +71,4 @@ jobs:
           prerelease: true
           make_latest: false
           overwrite_files: true
-          files: ${{ runner.workspace }}/godot-web-2d-${{ env.GODOT_VERSION }}.zip
+          files: ${{ runner.workspace }}/godot-web-2d-*.zip

@@ -17,6 +17,8 @@ concurrency:
 
 env:
   GODOT_VERSION: 4.4.1
+  # المحرك المصغّر (workflow «Godot Engine») — مجرّب ويّا كل الألعاب. إذا ما موجود نستعمل القالب الرسمي.
+  GODOT_TEMPLATE_ASSET: godot-web-2d-4.4.1.zip
 
 jobs:
   packs:
@@ -42,6 +44,10 @@ jobs:
           unzip -j -o "$RUNNER_TEMP/tpl.tpz" templates/web_nothreads_release.zip templates/version.txt -d "$dest"
           rm "$RUNNER_TEMP/tpl.tpz" "$RUNNER_TEMP/godot.zip"
           echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+          if curl -fsSL -o "$RUNNER_TEMP/$GODOT_TEMPLATE_ASSET" "https://github.com/${{ github.repository }}/releases/download/packs/$GODOT_TEMPLATE_ASSET"; then
+            echo "GODOT_TEMPLATE=$RUNNER_TEMP/$GODOT_TEMPLATE_ASSET" >> "$GITHUB_ENV"
+            echo "المحرك المصغّر: $GODOT_TEMPLATE_ASSET"
+          fi
 
       - name: بناء الحزم
         working-directory: apps/mobile
