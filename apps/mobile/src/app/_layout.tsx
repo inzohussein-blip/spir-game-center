@@ -71,6 +71,7 @@ function AppStack() {
         <Stack.Screen name="house" options={{ title: 'بيت سبير' }} />
         <Stack.Screen name="world" options={{ title: 'عالم سبير' }} />
         <Stack.Screen name="parents" options={{ title: 'وضع الأهل' }} />
+        <Stack.Screen name="downloads" options={{ title: 'الألعاب المنزّلة' }} />
         <Stack.Screen name="play/[id]" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
       </Stack>
     </>

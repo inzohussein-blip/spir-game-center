@@ -43,6 +43,7 @@ export default function Profile() {
         <ListGroup>
           <ListRow icon="people" title="غيّر اللاعب" subtitle={`${family.profiles.length} ملفات بالعائلة`} onPress={() => router.push('/who')} />
           <ListRow icon="lock-closed" title="وضع الأهل" subtitle="وقت اللعب، الأعمار، الألعاب المخفية" onPress={() => router.push('/parents')} />
+          <ListRow icon="cloud-download" title="الألعاب المنزّلة" subtitle="الألعاب الكبيرة اللي تنزل عند الطلب" onPress={() => router.push('/downloads')} />
           <ListRow icon={store.sound ? 'volume-high' : 'volume-mute'} title={store.sound ? 'الأصوات: شغّالة' : 'الأصوات: مطفية'} onPress={() => setSound(!store.sound)} chevron={false} />
         </ListGroup>
         <Text style={s.group}>لون التطبيق</Text>

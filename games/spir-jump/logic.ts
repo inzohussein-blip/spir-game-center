@@ -3,14 +3,24 @@
  * المرحلة شبكة صفوف (12 صف × عرض متغيّر) من قطع (segments) بترتيب ثابت لكل مرحلة:
  *   '.' فارغ · '#' أرض · '=' منصة خشب (تنزل عليها من فوق) · 'f' سمكة · '*' نجمة كبيرة (3 بكل مرحلة)
  *   'e' عدو (مخلوق يمشي) · 'b' فطر نطّ · 'P' البداية · 'G' علم النهاية
+ *   'm' منصة تتحرك فوق فراغ عريض (العالم الثاني) · 'B' الزعيم (آخر مرحلة)
  * القواعد: أي فراغ بالأرض ≤ 3 خانات، وتغيّر ارتفاع الأرض ≤ 2 بالخطوة، والمنصات ≤ 3 فوق الأرض —
  * حتى كل شي ينوصله بقفزة وحدة (القفزة ≈ 3.3 خانة طول و 4 خانات عرض).
+ * العالم الثاني (المراحل 11–20، ثلج وليل): فراغات عريضة (MOVING_GAP) بس فوقها منصة تتحرك،
+ * والمرحلة الأخيرة فيها ساحة الزعيم قبل العلم.
  */
 import { rng } from '../../packages/spir-kit/rng.ts';
 import type { Level } from '../../packages/spir-kit/sdk.ts';
 
 export const ROWS = 12;
-export const STAGES = 10;
+export const STAGES = 20;
+/** كل عالم 10 مراحل */
+export const WORLD_SIZE = 10;
+export const MOVING_GAP = 5;
+export const BOSS_HP = 3;
+export const worldOf = (stage: number) => (stage <= WORLD_SIZE ? 1 : 2);
+/** السماء: 0 الحديقة · 1 الشاطئ · 2 الثلج · 3 الليل */
+export const skyOf = (stage: number) => Math.min(3, Math.floor((stage - 1) / 5));
 export const MAX_GAP = 3;
 export const MAX_RISE = 2;
 export const MAX_PLAT = 3;
@@ -22,7 +32,7 @@ export const ENEMY_SPEED: Record<Level, number> = { easy: 45, medium: 70, hard: 
 
 export function makeLevel(stage: number): { grid: Grid; width: number } {
   const r = rng(stage * 7349 + 11);
-  const segs = 8 + stage; // المراحل تطول
+  const segs = 8 + Math.min(stage, WORLD_SIZE) + Math.max(0, Math.floor((stage - WORLD_SIZE) / 2)); // المراحل تطول
   const cols: string[][] = [];
   let h = 3; // ارتفاع الأرض (عدد خانات من تحت)
   const col = (height: number) => {
@@ -39,7 +49,7 @@ export function makeLevel(stage: number): { grid: Grid; width: number } {
   const starEvery = Math.floor(segs / 3);
   for (let sIdx = 0; sIdx < segs; sIdx++) {
     const wantStar = starsLeft > 0 && sIdx > 0 && sIdx % starEvery === 0;
-    const kinds = ['flat', 'gap', 'step', 'plat', 'enemy', 'bounce'];
+    const kinds = ['flat', 'gap', 'step', 'plat', 'enemy', 'bounce', ...(worldOf(stage) === 2 ? ['moving', 'moving'] : [])];
     // المراحل الأولى أسهل: فراغات وأعداء أقل
     const kind = stage <= 2 && sIdx % 3 !== 0 ? r.pick(['flat', 'step', 'plat']) : r.pick(kinds);
     if (kind === 'flat' || kind === 'enemy') {
@@ -81,6 +91,17 @@ export function makeLevel(stage: number): { grid: Grid; width: number } {
         cols[start + i][py - 1] = i === 2 && wantStar ? '*' : 'f';
       }
       if (wantStar) starsLeft--;
+    } else if (kind === 'moving') {
+      // فراغ عريض فوقه منصة تتحرك رايح جاي (بمستوى الأرض)
+      col(h);
+      for (let i = 0; i < MOVING_GAP; i++) {
+        const c = col(0);
+        if (i === 0) c[ROWS - h] = 'm';
+        c[ROWS - h - 3] = i === 2 && wantStar ? '*' : i % 2 ? 'f' : '.';
+      }
+      if (wantStar) starsLeft--;
+      col(h);
+      col(h);
     } else if (kind === 'bounce') {
       for (let i = 0; i < 4; i++) col(h);
       cols[cols.length - 3][top()] = 'b';
@@ -94,6 +115,11 @@ export function makeLevel(stage: number): { grid: Grid; width: number } {
     cols[cols.length - 1][top() - 2] = '*';
     col(h);
     starsLeft--;
+  }
+  if (stage === STAGES) {
+    // ساحة الزعيم: أرض مستوية عريضة
+    for (let i = 0; i < 14; i++) col(h);
+    cols[cols.length - 7][top()] = 'B';
   }
   for (let i = 0; i < 5; i++) col(h);
   cols[cols.length - 3][top()] = 'G';

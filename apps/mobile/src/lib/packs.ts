@@ -65,3 +65,17 @@ export function usePack(id: string) {
 
   return { pack, ...st, download, remove };
 }
+
+/** امسح كل الألعاب المنزّلة (ومعها أي نسخ قديمة أو تنزيلات ناقصة) */
+export async function removeAllPacks() {
+  await FS.deleteAsync(dir(), { idempotent: true });
+}
+
+/** المساحة الفارغة بالجهاز (بايت)، أو null إذا ما نعرف */
+export async function freeSpace(): Promise<number | null> {
+  try {
+    return await FS.getFreeDiskStorageAsync();
+  } catch {
+    return null;
+  }
+}

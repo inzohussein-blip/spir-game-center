@@ -8,7 +8,7 @@ import { catFull, cloud, creature, fish, goalFlag, groundTile, heart, mushroom, 
 import { Audio } from '../../packages/spir-engine/audio.ts';
 import { FONT_BODY, FONT_DISPLAY, loadFonts } from '../../packages/spir-engine/fonts.ts';
 import { listen, send, type Settings } from '../../packages/spir-kit/sdk.ts';
-import { ENEMY_SPEED, groundHeights, LIVES, makeLevel, ROWS, starsFor } from './logic.ts';
+import { BOSS_HP, ENEMY_SPEED, groundHeights, LIVES, makeLevel, ROWS, skyOf, starsFor, worldOf } from './logic.ts';
 
 const TILE = 48;
 const RUN = 230;
@@ -60,19 +60,24 @@ class Play extends Phaser.Scene {
   wasOnFloor = false;
   baseScale = { x: 1, y: 1 };
   heights: number[] = [];
+  movers!: Phaser.Physics.Arcade.Group;
+  boss: Phaser.Physics.Arcade.Sprite | null = null;
+  bossHp = 0;
+  bossHitUntil = 0;
 
   constructor() {
     super('play');
   }
 
   hud() {
-    send({ type: 'hud', text: `المرحلة ${settings.stage}`, score: `${this.fishCount} سمكة · ${this.starCount}/3 ★` });
+    const text = this.boss?.active ? `الزعيم: ${'♥'.repeat(this.bossHp)}` : `المرحلة ${settings.stage}`;
+    send({ type: 'hud', text, score: `${this.fishCount} سمكة · ${this.starCount}/3 ★` });
     this.game.events.emit('hud', { lives: this.lives, fish: this.fishCount, stars: this.starCount });
   }
 
   create() {
     const stage = settings.stage;
-    const theme = stage <= 5 ? THEMES[0] : THEMES[1];
+    const snow = worldOf(stage) === 2;
     const { grid, width } = makeLevel(stage);
     this.heights = groundHeights(grid);
     this.worldW = width * TILE;
@@ -89,7 +94,7 @@ class Play extends Phaser.Scene {
     const cam = this.cameras.main;
     const zoom = Math.min(this.scale.height / (worldH + TILE * 0.5), this.scale.width / (TILE * 8.5));
     cam.setZoom(zoom);
-    this.game.events.emit('theme', stage <= 5 ? 'sky0' : 'sky1');
+    this.game.events.emit('theme', `sky${skyOf(stage)}`);
 
     this.solids = this.physics.add.staticGroup();
     this.planks = this.physics.add.staticGroup();
@@ -97,6 +102,8 @@ class Play extends Phaser.Scene {
     this.stars = this.physics.add.staticGroup();
     this.bouncers = this.physics.add.staticGroup();
     this.enemies = this.physics.add.group({ allowGravity: true });
+    this.movers = this.physics.add.group({ allowGravity: false, immovable: true });
+    this.boss = null;
 
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < width; x++) {
@@ -105,7 +112,7 @@ class Play extends Phaser.Scene {
         const cy = y * TILE + TILE / 2;
         if (ch === '#') {
           const isTop = y === 0 || grid[y - 1][x] !== '#';
-          this.solids.create(cx, cy, isTop ? 'grassTop' : 'dirt').setDisplaySize(TILE, TILE).refreshBody();
+          this.solids.create(cx, cy, snow ? (isTop ? 'snowTop' : 'rock') : isTop ? 'grassTop' : 'dirt').setDisplaySize(TILE, TILE).refreshBody();
         } else if (ch === '=') {
           const p = this.planks.create(cx, y * TILE + TILE / 4, 'plank') as Phaser.Physics.Arcade.Image;
           p.setDisplaySize(TILE, TILE / 2).refreshBody();
@@ -131,6 +138,27 @@ class Play extends Phaser.Scene {
           e.body?.setSize(e.width * 0.6, e.height * 0.55).setOffset(e.width * 0.2, e.height * 0.35);
           e.setVelocityX(-ENEMY_SPEED[settings.level]);
           e.setData('speed', ENEMY_SPEED[settings.level]);
+        } else if (ch === 'm') {
+          // منصة تتحرك فوق الفراغ: من أول عمود فارغ لآخر عمود فارغ
+          let end = x;
+          while (end + 1 < width && this.heights[end + 1] === 0) end++;
+          const m = this.movers.create(x * TILE + TILE, y * TILE + TILE / 4, 'plank') as Phaser.Physics.Arcade.Image;
+          m.setDisplaySize(TILE * 2, TILE / 2);
+          const mb = m.body as Phaser.Physics.Arcade.Body;
+          mb.checkCollision.down = false;
+          mb.checkCollision.left = false;
+          mb.checkCollision.right = false;
+          m.setData('min', x * TILE + TILE).setData('max', end * TILE);
+          m.setVelocityX(settings.level === 'hard' ? 85 : 60);
+        } else if (ch === 'B') {
+          const b = this.physics.add.sprite(cx, cy - 40, 'boss');
+          b.setDisplaySize(118, 118);
+          b.body?.setSize(b.width * 0.62, b.height * 0.55).setOffset(b.width * 0.19, b.height * 0.38);
+          b.setData('min', cx - TILE * 5).setData('max', cx + TILE * 5);
+          b.setVelocityX(-ENEMY_SPEED[settings.level]);
+          b.setDepth(5);
+          this.boss = b;
+          this.bossHp = BOSS_HP;
         } else if (ch === 'P') {
           this.start = { x: cx, y: cy };
         } else if (ch === 'G') {
@@ -142,7 +170,7 @@ class Play extends Phaser.Scene {
     // تراب تحت حدود المرحلة حتى الأرض ما تبين طايرة
     this.heights.forEach((h, x) => {
       if (!h) return;
-      for (let y = ROWS; y < ROWS + 6; y++) this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'dirt').setDisplaySize(TILE + 1, TILE + 1);
+      for (let y = ROWS; y < ROWS + 6; y++) this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, snow ? 'rock' : 'dirt').setDisplaySize(TILE + 1, TILE + 1);
     });
 
     // سبير
@@ -161,11 +189,18 @@ class Play extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.stars, (_p, s) => this.getStar(s as Phaser.Physics.Arcade.Image));
     this.physics.add.overlap(this.player, this.bouncers, (_p, b) => this.bounce(b as Phaser.Physics.Arcade.Image));
     this.physics.add.overlap(this.player, this.enemies, (_p, e) => this.touchEnemy(e as Phaser.Physics.Arcade.Sprite));
+    this.physics.add.collider(this.player, this.movers);
+    this.physics.add.collider(this.enemies, this.movers);
     this.physics.add.overlap(this.player, this.goal, () => this.win());
+    if (this.boss) {
+      this.physics.add.collider(this.boss, this.solids);
+      this.physics.add.overlap(this.player, this.boss, () => this.touchBoss());
+      // العلم يطلع بس بعد ما ينغلب الزعيم
+      this.goal.setVisible(false);
+    }
 
     cam.setBounds(0, -TILE * 0.5, this.worldW, worldH + TILE);
     cam.startFollow(this.player, true, 0.12, 0.12, 0, 40);
-    void theme;
 
     // لوحة المفاتيح (للويب)
     const keys = this.input.keyboard?.createCursorKeys();
@@ -176,7 +211,9 @@ class Play extends Phaser.Scene {
       this.input2.jump = keys.up.isDown || keys.space.isDown || this.registry.get('jump');
     });
     this.hud();
-    audio.music(stage <= 5 ? 64 : 60);
+    // طبقة الأزرار تنفتح بعد هالمشهد — نعيد التحديث حتى العدّاد يبين من أول لحظة
+    this.time.delayedCall(60, () => this.hud());
+    audio.music([64, 60, 67, 57][skyOf(stage)]);
   }
 
   eatFish(f: Phaser.Physics.Arcade.Image) {
@@ -221,6 +258,38 @@ class Play extends Phaser.Scene {
     this.hurt(e.x < this.player.x ? 1 : -1);
   }
 
+  touchBoss() {
+    const b = this.boss;
+    if (!b?.active || this.over) return;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    if (body.velocity.y > 50 && this.player.y < b.y - 30) {
+      body.setVelocityY(-JUMP * 0.95);
+      if (this.time.now < this.bossHitUntil) return;
+      this.bossHitUntil = this.time.now + 700;
+      this.bossHp--;
+      audio.play('merge');
+      send({ type: 'vibrate' });
+      this.cameras.main.shake(200, 0.01);
+      this.burst(b.x, b.y - 30, 'spark', 14);
+      this.tweens.add({ targets: b, alpha: 0.4, yoyo: true, repeat: 3, duration: 90 });
+      // كل ضربة يصير أسرع
+      const sp = (ENEMY_SPEED[settings.level] * (1 + (BOSS_HP - this.bossHp) * 0.45)) | 0;
+      b.setVelocityX(Math.sign((b.body as Phaser.Physics.Arcade.Body).velocity.x || 1) * sp);
+      if (this.bossHp <= 0) {
+        b.disableBody(true, false);
+        audio.play('unlock');
+        for (let i = 0; i < 5; i++) this.time.delayedCall(i * 120, () => this.burst(b.x + (Math.random() - 0.5) * 80, b.y - 40, 'spark', 10));
+        this.tweens.add({ targets: b, scaleX: 0.01, scaleY: 0.01, angle: 360, duration: 600, onComplete: () => b.destroy() });
+        this.goal.setVisible(true).setScale(this.goal.scaleX * 0.2, this.goal.scaleY * 0.2);
+        this.tweens.add({ targets: this.goal, scaleX: this.goal.scaleX * 5, scaleY: this.goal.scaleY * 5, duration: 500, ease: 'Back.out' });
+        this.fishCount += 10;
+      }
+      this.hud();
+      return;
+    }
+    this.hurt(b.x < this.player.x ? 1 : -1);
+  }
+
   hurt(dir: number, free = false) {
     if (this.time.now < this.hurtUntil || this.over) return;
     if (!free) this.lives--;
@@ -246,7 +315,7 @@ class Play extends Phaser.Scene {
   }
 
   async win() {
-    if (this.over) return;
+    if (this.over || this.boss?.active) return;
     this.over = true;
     audio.play('win');
     send({ type: 'vibrate' });
@@ -290,6 +359,22 @@ class Play extends Phaser.Scene {
       e.setFlipX(eb.velocity.x > 0);
       e.setScale(e.scaleX, e.scaleX * (1 + Math.sin(this.time.now / 120 + e.x) * 0.04));
     });
+    // المنصات المتحركة: رايح جاي بين حدودها
+    this.movers.getChildren().forEach((obj) => {
+      const m = obj as Phaser.Physics.Arcade.Image;
+      const mb = m.body as Phaser.Physics.Arcade.Body;
+      if (m.x <= m.getData('min')) mb.setVelocityX(Math.abs(mb.velocity.x));
+      else if (m.x >= m.getData('max')) mb.setVelocityX(-Math.abs(mb.velocity.x));
+    });
+    // الزعيم: يمشي بساحته ويقفز أحياناً
+    const b = this.boss;
+    if (b?.active) {
+      const bb = b.body as Phaser.Physics.Arcade.Body;
+      if (b.x <= b.getData('min')) bb.setVelocityX(Math.abs(bb.velocity.x));
+      else if (b.x >= b.getData('max')) bb.setVelocityX(-Math.abs(bb.velocity.x));
+      b.setFlipX(bb.velocity.x > 0);
+      if (bb.blocked.down && Math.random() < 0.006) bb.setVelocityY(-560);
+    }
     if (this.over) return;
 
     const { left, right, jump } = this.input2;
@@ -412,6 +497,11 @@ class Boot extends Phaser.Scene {
     const defs: Record<string, [Art, number]> = {
       sky0: [sky(THEMES[0], 390, 900), (this.scale.height / 900) * 1.02],
       sky1: [sky(THEMES[1], 390, 900), (this.scale.height / 900) * 1.02],
+      sky2: [sky(THEMES[2], 390, 900), (this.scale.height / 900) * 1.02],
+      sky3: [sky(THEMES[3], 390, 900), (this.scale.height / 900) * 1.02],
+      snowTop: [groundTile(TILE, true, '#F4FAFF', '#7F95C9'), k],
+      rock: [groundTile(TILE, false, '#F4FAFF', '#7F95C9'), k],
+      boss: [creature(9, 128), k],
       cloud: [cloud(1), DPR],
       grassTop: [groundTile(TILE, true), k],
       dirt: [groundTile(TILE, false), k],
@@ -477,6 +567,8 @@ async function boot() {
     scene: [Boot, Bg, Play, Hud],
   });
   game.canvas.addEventListener('pointerdown', () => audio.unlock());
+  // للاختبارات الآلية بس (#test بالرابط)
+  if (location.hash === '#test') (window as unknown as { __game: Phaser.Game }).__game = game;
   listen((m) => {
     if (m.type === 'start') {
       settings = m.settings;

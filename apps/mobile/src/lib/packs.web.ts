@@ -22,3 +22,8 @@ export function usePack(id: string) {
   const noop = useCallback(async () => {}, []);
   return { pack, status: pack ? ('ready' as const) : ('none' as const), progress: 1, uri: pack ? packUrl(pack) : null, error: undefined, download: noop, remove: noop };
 }
+
+export async function removeAllPacks() {}
+export async function freeSpace(): Promise<number | null> {
+  return null;
+}
