@@ -3,10 +3,13 @@
 //   2) ملفات المحرك (wasm + pck + worklets) تنضغط gzip وتنحط داخل الصفحة base64،
 //      والغلاف (games/<id>/shell.ts) يفكها بالذاكرة ويشغّل المحرك — ولا طلب واحد للنت.
 //   3) الناتج: packs/<id>-<version>.html بجذر المشروع، ويتحدث pack.bytes بـ game.json.
+// الملفات المشتركة بين كل ألعاب Godot (الجسر addons/spir والخطوط) بـ games/_godot وتنتسخ للمشروع قبل التصدير.
+//   --sync بس ينسخها (حتى تفتح المشروع بمحرّر Godot).
+// GODOT_TEMPLATE=/path/godot-web-2d.zip: قالب ويب مخصص (المحرك المصغّر) بدل الرسمي.
 // سياسة الأمان لهالملف بس تسمح بـ 'wasm-unsafe-eval' (WebAssembly) و blob: (ملفات الصوت).
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -21,12 +24,30 @@ const manifestPath = join(gameDir, 'game.json');
 const m = JSON.parse(readFileSync(manifestPath, 'utf8'));
 if (m.engine !== 'godot') throw new Error(`${id}: engine لازم يكون godot`);
 
+// 0) الملفات المشتركة
+const common = join(repo, 'games', '_godot');
+for (const sub of ['addons/spir', 'fonts']) cpSync(join(common, sub), join(projectDir, sub), { recursive: true });
+if (process.argv.includes('--sync')) {
+  console.log(`✓ ${id}: انتسخت الملفات المشتركة`);
+  process.exit(0);
+}
+
 // 1) التصدير
 if (process.env.GODOT) {
   mkdirSync(exportDir, { recursive: true });
-  const run = (...args) => execFileSync(process.env.GODOT, ['--headless', '--path', projectDir, ...args], { stdio: 'inherit' });
-  run('--import');
-  run('--export-release', 'Web', join(exportDir, 'index.html'));
+  const presetsPath = join(projectDir, 'export_presets.cfg');
+  const presets = readFileSync(presetsPath, 'utf8');
+  const tpl = process.env.GODOT_TEMPLATE;
+  if (tpl && !existsSync(tpl)) throw new Error(`القالب مو موجود: ${tpl}`);
+  if (tpl) writeFileSync(presetsPath, presets.replace(/custom_template\/release=".*"/, `custom_template/release="${tpl}"`));
+  try {
+    const run = (...args) => execFileSync(process.env.GODOT, ['--headless', '--path', projectDir, ...args], { stdio: 'inherit' });
+    run('--import');
+    run('--export-release', 'Web', join(exportDir, 'index.html'));
+  } finally {
+    writeFileSync(presetsPath, presets);
+  }
+  if (tpl) console.log(`(قالب مخصص: ${tpl})`);
 }
 const exported = readdirSync(exportDir);
 const shellHtml = readFileSync(join(exportDir, 'index.html'), 'utf8');
@@ -46,7 +67,7 @@ const blobs = embedded
 
 const nodeModules = fileURLToPath(new URL('../node_modules/', import.meta.url));
 const shell = await build({
-  entryPoints: [join(gameDir, 'shell.ts')],
+  entryPoints: [existsSync(join(gameDir, 'shell.ts')) ? join(gameDir, 'shell.ts') : join(common, 'shell.ts')],
   bundle: true,
   minify: true,
   format: 'iife',

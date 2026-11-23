@@ -10,6 +10,7 @@ export type GameIcon =
   | 'cat'
   | 'run-fast'
   | 'ghost'
+  | 'domain'
   | 'numeric-2-box-multiple'
   | 'view-grid-plus'
   | 'snake'
@@ -68,6 +69,7 @@ const C = { royal: '#1A23C9', orange: '#E8590C', green: '#1C8B4A', pink: '#E0398
 export const GAMES: Game[] = [
   { id: 'spir-jump', title: 'قفزة سبير', tagline: 'نط وجمّع السمك للعلم', howTo: 'امشِ بالأسهم واضغط القفزة. اقفز فوق الفراغات، دوس على المخلوقات من فوق، والفطر الأحمر ينطّك عالي. جمّع 3 نجوم ووصل للعلم. عالمين: الحديقة والثلج — وبآخر مرحلة ينتظرك الزعيم!', category: 'arcade', minAge: 5, color: C.orange, icon: 'run-fast', players: [1], levels: 20, ready: false, featured: true },
   { id: 'dodge', title: 'تجنّب الوحوش', tagline: 'هرّب سبير من الوحوش', howTo: 'حرّك سبير بإصبعك (أو بالأسهم) وتجنّب الوحوش اللي تعبر الشاشة. جمّع السمك للنقاط الإضافية — كل ما تصمد أكثر تاخذ نجوم أكثر.', category: 'arcade', minAge: 5, color: C.violet, icon: 'ghost', players: [1], levels: 1, ready: false, featured: true },
+  { id: 'tower', title: 'برج سبير', tagline: 'ابنِ أعلى برج بدون ما يوگع', howTo: 'الرافعة تتمرجح فوق — اضغط بأي مكان حتى تنزّل القطعة. رتّب الصناديق والخشب والبزازين النايمين فوق بعض، وكل قطعة توگع من البرج تاكل قلب.', category: 'arcade', minAge: 5, color: C.teal, icon: 'domain', players: [1], levels: 1, ready: false, featured: true },
   { id: 'trap-cat', title: 'حاصر البزون', tagline: 'نبّت شجيرات وحاصر ميشو', howTo: 'كل ضغطة تنبّت شجيرة تسد الطريق. «ميشو» يتحرك خطوة بعد كل ضغطة — احصره قبل ما يوصل للحافة.', category: 'brain', minAge: 5, color: C.pink, icon: 'cat', players: [1], levels: 30, ready: false, featured: true },
   { id: 'merge', title: 'دمج المخلوقات', tagline: 'ادمج السبيرات حتى يكبرون', howTo: 'اسحب للأربع اتجاهات. كل مخلوقين متشابهين يندمجون ويصيرون مخلوق أكبر. الهدف: «رمّانة» بالسهل، «نجمة» بالمتوسط، و«الملك» بالصعب.', category: 'puzzle', minAge: 9, color: C.orange, icon: 'numeric-2-box-multiple', players: [1], levels: 1, ready: false, featured: true },
   { id: 'blocks', title: 'بلوكات الحلوى', tagline: 'رتّب الحلوى وفجّر الصفوف', howTo: 'اسحب قطع الحلوى للوحة. كل صف أو عمود يتعبّى ينفجر ويعطيك نقاط، وأكثر من خط سوا يعطي كومبو.', category: 'puzzle', minAge: 7, color: C.violet, icon: 'view-grid-plus', players: [1], levels: 1, ready: false, featured: true },

@@ -1,5 +1,7 @@
 # حزم الألعاب الكبيرة (scripts/godot-pack.mjs) — تنرفع لإصدار packs مو للمستودع
 /packs/
-# تصدير وملفات Godot المؤقتة
+# تصدير وملفات Godot المؤقتة، والملفات المشتركة (تنتسخ من games/_godot وقت البناء)
 games/*/build/
 games/*/godot/.godot/
+games/*/godot/addons/spir/
+games/*/godot/fonts/

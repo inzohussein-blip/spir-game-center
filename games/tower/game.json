@@ -1,0 +1,33 @@
+{
+  "id": "tower",
+  "version": 1,
+  "title": "برج سبير",
+  "orientation": "portrait",
+  "offline": true,
+  "engine": "godot",
+  "license": "MIT",
+  "assets": [
+    {
+      "what": "الرسوم والأصوات",
+      "license": "MIT",
+      "by": "Spir Games"
+    },
+    {
+      "what": "خط بالو بهيجان 2",
+      "license": "OFL-1.1",
+      "by": "Ek Type"
+    },
+    {
+      "what": "محرك Godot",
+      "license": "MIT",
+      "by": "Godot Engine contributors"
+    }
+  ],
+  "credits": "مبنية بمحرك Godot (MIT) وفيزياء الأجسام مالته.",
+  "source": "original",
+  "pack": {
+    "type": "download",
+    "file": "tower-1.html",
+    "bytes": 13292197
+  }
+}
